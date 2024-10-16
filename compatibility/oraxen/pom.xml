@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ghostchu</groupId>
+        <artifactId>quickshop-hikari</artifactId>
+        <version>6.2.0.7</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <groupId>com.ghostchu.quickshop.compatibility</groupId>
+    <artifactId>oraxen</artifactId>
+    <packaging>takari-jar</packaging>
+
+    <name>Compat-Oraxen</name>
+
+    <description>Compatibility module for Oraxen</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>oraxen-releases</id>
+            <url>https://repo.oraxen.com/releases</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ghostchu.quickshop.compatibility</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ghostchu</groupId>
+            <artifactId>quickshop-bukkit</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.th0rgal</groupId>
+            <artifactId>oraxen</artifactId>
+            <version>1.182.0</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>oraxen</groupId>
+                    <artifactId>v1_20_R2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>oraxen</groupId>
+                    <artifactId>v1_20_R3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>oraxen</groupId>
+                    <artifactId>v1_20_R4</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>oraxen</groupId>
+                    <artifactId>v1_21_R1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.Euphillya</groupId>
+                    <artifactId>Energie</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>me.gabytm.util</groupId>
+                    <artifactId>actions-spigot</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>

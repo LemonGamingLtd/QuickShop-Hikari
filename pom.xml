@@ -435,6 +435,7 @@
         <module>compatibility/slimefun</module>
         <module>compatibility/itemsadder</module>
         <module>compatibility/voidchest</module>
+        <module>compatibility/oraxen</module>
         <module>addon/discordsrv</module>
         <module>addon/plan</module>
         <module>addon/discount</module>
