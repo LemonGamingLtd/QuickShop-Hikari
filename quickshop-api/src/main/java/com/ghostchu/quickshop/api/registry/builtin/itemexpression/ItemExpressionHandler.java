@@ -1,8 +1,10 @@
 package com.ghostchu.quickshop.api.registry.builtin.itemexpression;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface ItemExpressionHandler extends Comparable<ItemExpressionHandler> {
 
@@ -17,6 +19,11 @@ public interface ItemExpressionHandler extends Comparable<ItemExpressionHandler>
   }
 
   boolean match(ItemStack stack, String expression);
+
+  @Nullable
+  default Component displayName(@NotNull ItemStack stack) {
+    return null;
+  }
 
   @Override
   int hashCode();

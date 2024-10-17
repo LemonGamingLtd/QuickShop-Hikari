@@ -5,9 +5,11 @@ import com.ghostchu.quickshop.api.registry.PrefixAlreadyRegisteredException;
 import com.ghostchu.quickshop.api.registry.builtin.itemexpression.ItemExpressionHandler;
 import com.ghostchu.quickshop.api.registry.builtin.itemexpression.ItemExpressionRegistry;
 import com.google.common.collect.ImmutableSet;
+import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -39,6 +41,17 @@ public class SimpleItemExpressionRegistry implements ItemExpressionRegistry {
       }
     }
     return false;
+  }
+
+  @Override
+  public @Nullable Component displayName(ItemStack stack) {
+    for (ItemExpressionHandler handler : handlers) {
+      final Component component = handler.displayName(stack);
+      if (component != null) {
+        return component;
+      }
+    }
+    return null;
   }
 
   @Override
