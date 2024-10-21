@@ -81,7 +81,7 @@ public class MainPage extends QuickShopPage {
         final int stock = (shop.get().isBuying())? -1 : shop.get().getRemainingStock();
         final String stockString = (shop.get().isUnlimited())? "Unlimited" : stock + "";
 
-        open.getPage().addIcon(new IconBuilder(new BukkitItemStack().of(shopItem)).withSlot(13).build());
+        open.getPage().addIcon(new IconBuilder(new BukkitItemStack().of(shopItem).display(Util.getItemStackName(shopItem))).withSlot(13).build());
 
         final String lore = (shop.get().isSelling())? "gui.trade.custom.lore-buy" : "gui.trade.custom.lore-sell";
         final String enter = (shop.get().isSelling())? "gui.trade.custom.enter-buy" : "gui.trade.custom.enter-sell";

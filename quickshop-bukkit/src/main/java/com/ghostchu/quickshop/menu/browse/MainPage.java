@@ -21,6 +21,7 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.economy.AbstractEconomy;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.util.Util;
 import net.kyori.adventure.text.Component;
 import net.tnemc.item.AbstractItemStack;
 import net.tnemc.item.bukkit.BukkitItemStack;
@@ -150,6 +151,7 @@ public class MainPage {
 
           final AbstractEconomy eco = QuickShop.getInstance().getEconomy();
           final AbstractItemStack<ItemStack> stack = new BukkitItemStack().of(shop.getItem().getType().getKey().toString(), shop.getShopStackingAmount())
+                  .display(Util.getItemStackName(shop.getItem()))
                   .lore(getList(id, iconLore,
                                 shop.getOwner().getDisplay(),
                                 location,
