@@ -49,8 +49,12 @@ public class DataUtil {
       return "[Failed to deserialize]";
     }
     String name = CommonUtil.prettifyText(stack.getType().name());
-    if(stack.getItemMeta() != null && stack.getItemMeta().hasDisplayName()) {
-      name = stack.getItemMeta().getDisplayName();
+    if(stack.getItemMeta() != null) {
+      if (stack.getItemMeta().hasItemName()) {
+        name = stack.getItemMeta().getItemName();
+      } else if (stack.getItemMeta().hasDisplayName()) {
+        name = stack.getItemMeta().getDisplayName();
+      }
     }
     return HtmlEscapers.htmlEscaper().escape(name);
   }
@@ -59,8 +63,12 @@ public class DataUtil {
   public String getItemName(@NotNull final ItemStack stack) {
 
     String name = CommonUtil.prettifyText(stack.getType().name());
-    if(stack.getItemMeta() != null && stack.getItemMeta().hasDisplayName()) {
-      name = stack.getItemMeta().getDisplayName();
+    if(stack.getItemMeta() != null) {
+      if (stack.getItemMeta().hasItemName()) {
+        name = stack.getItemMeta().getItemName();
+      } else if (stack.getItemMeta().hasDisplayName()) {
+        name = stack.getItemMeta().getDisplayName();
+      }
     }
     return HtmlEscapers.htmlEscaper().escape(name);
   }
