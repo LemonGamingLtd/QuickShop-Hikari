@@ -470,7 +470,6 @@
         <module>compatibility/voidchest</module>
         <module>compatibility/worldedit</module>
         <module>compatibility/worldguard</module>
-        <module>compatibility/oraxen</module>
     </modules>
 
 </project>
