@@ -119,6 +119,7 @@ menu:
   item-holochat-data-too-large: <red>[Error] Položka NBT je příliš velká k zobrazení
   stock: '<green>Zásoby: <yellow>{0}'
   this-shop-is-buying: <green>Tento obchod je <light_purple>KUPUJTE<green> položek.
+  this-shop-is-frozen: <green>The shop is now in <red>freeze mode<green>.
   successfully-sold: '<green>Úspěšně prodáno:'
   total-value-of-chest: '<green>Celková hodnota truhly: <yellow>{0}'
 currency-not-exists: <red>Nelze najít měnu, kterou chcete nastavit. Možná je pravopis špatný nebo není měna v tomto světě k dispozici.
@@ -246,7 +247,6 @@ translate-not-completed-yet-click: Překlad jazyka {0} ještě nebyl dokončen u
 taxaccount-invalid: <red>Cílový účet není platný, zadejte prosím platné jméno hráče nebo uuid(s pomlčkami).
 player-bought-from-your-store: <green>{0} si koupil {1} {2} z vašeho obchodu a získali jste {3}.
 reached-maximum-can-create: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <red>Již jste vytvořili maximum {0}/{1} obchodů!
-reached-maximum-create-limit: <red>Dosáhli jste maximálního počtu obchodů, které můžete vytvořit
 translation-version: 'Verze podpory: Hikari'
 no-double-chests: <red>Nemůžeš vytvářet DoubleChest obchod.
 price-too-cheap: <red>Cena musí být větší než <yellow>${0}

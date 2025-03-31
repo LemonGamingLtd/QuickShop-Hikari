@@ -44,6 +44,23 @@ public class ShopNameEvent extends ShopSettingEvent<String> {
   }
 
   /**
+   * Creates a new instance of PhasedEvent with the specified newPhase.
+   *
+   * @param newPhase The new Phase for the cloned PhasedEvent
+   *
+   * @return A new instance of PhasedEvent with the specified newPhase
+   */
+  @Override
+  public ShopNameEvent clone(final Phase newPhase) {
+
+    if(this.updated != null) {
+
+      return new ShopNameEvent(newPhase, this.shop, this.old, this.updated);
+    }
+    return new ShopNameEvent(newPhase, this.shop, this.old);
+  }
+
+  /**
    * Creates a clone of the ShopSettingEvent with the provided newPhase, old value, and updated
    * value.
    *
@@ -57,19 +74,6 @@ public class ShopNameEvent extends ShopSettingEvent<String> {
   public ShopNameEvent clone(final Phase newPhase, final String old, final String updated) {
 
     return new ShopNameEvent(newPhase, this.shop, old, updated);
-  }
-
-  /**
-   * Creates a new instance of PhasedEvent with the specified newPhase.
-   *
-   * @param newPhase The new Phase for the cloned PhasedEvent
-   *
-   * @return A new instance of PhasedEvent with the specified newPhase
-   */
-  @Override
-  public ShopNameEvent clone(final Phase newPhase) {
-
-    return new ShopNameEvent(newPhase, this.shop, this.old, this.updated);
   }
 
   public static ShopNameEvent PRE(final @NotNull Shop shop,

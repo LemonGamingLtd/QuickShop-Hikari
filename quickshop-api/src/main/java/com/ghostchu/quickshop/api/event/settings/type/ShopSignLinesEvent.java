@@ -56,8 +56,11 @@ public class ShopSignLinesEvent extends ShopSettingEvent<List<Component>> {
    */
   @Override
   public ShopSignLinesEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopSignLinesEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopSignLinesEvent(newPhase, this.shop, this.old, this.updated);
+    }
+    return new ShopSignLinesEvent(newPhase, this.shop, this.old);
   }
 
   /**

@@ -52,8 +52,12 @@ public class ShopUnlimitedEvent extends ShopSettingEvent<Boolean> {
    */
   @Override
   public ShopUnlimitedEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopUnlimitedEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopUnlimitedEvent(newPhase, this.shop, this.old, this.updated);
+    }
+
+    return new ShopUnlimitedEvent(newPhase, this.shop, this.old);
   }
 
   /**

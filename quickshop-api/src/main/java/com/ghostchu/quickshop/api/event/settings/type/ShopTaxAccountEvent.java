@@ -54,8 +54,12 @@ public class ShopTaxAccountEvent extends ShopSettingEvent<QUser> {
    */
   @Override
   public ShopTaxAccountEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopTaxAccountEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopTaxAccountEvent(newPhase, this.shop, this.old, this.updated);
+    }
+
+    return new ShopTaxAccountEvent(newPhase, this.shop, this.old);
   }
 
   /**

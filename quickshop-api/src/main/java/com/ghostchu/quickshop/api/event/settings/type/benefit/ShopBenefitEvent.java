@@ -54,8 +54,12 @@ public class ShopBenefitEvent extends ShopSettingEvent<Benefit> {
    */
   @Override
   public ShopBenefitEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopBenefitEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopBenefitEvent(newPhase, this.shop, this.old, this.updated);
+    }
+
+    return new ShopBenefitEvent(newPhase, this.shop, this.old);
   }
 
   /**

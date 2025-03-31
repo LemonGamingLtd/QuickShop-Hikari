@@ -53,8 +53,12 @@ public class ShopOwnerNameEvent extends ShopSettingEvent<Component> {
    */
   @Override
   public ShopOwnerNameEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopOwnerNameEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopOwnerNameEvent(newPhase, this.shop, this.old, this.updated);
+    }
+
+    return new ShopOwnerNameEvent(newPhase, this.shop, this.old);
   }
 
   /**

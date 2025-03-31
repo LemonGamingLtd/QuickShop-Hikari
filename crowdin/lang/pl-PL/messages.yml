@@ -119,6 +119,7 @@ menu:
   item-holochat-data-too-large: <red>[Error] Element NBT jest zbyt duży, aby go pokazać
   stock: '<green>Ilość <yellow>{0}'
   this-shop-is-buying: <green>Ten sklep <light_purple>SKUPUJE<green> itemy.
+  this-shop-is-frozen: <green>The shop is now in <red>freeze mode<green>.
   successfully-sold: '<green>Sprzedano:'
   total-value-of-chest: '<green>Ilość w skrzyni: <yellow>{0}'
 currency-not-exists: <red>Nie można znaleźć waluty, którą chcesz ustawić. Może pisownia jest błędna lub ta waluta nie jest dostępna w tym świecie.
@@ -246,7 +247,6 @@ translate-not-completed-yet-click: Tłumaczenie języka {0} nie zostało jeszcze
 taxaccount-invalid: <red>Konto docelowe jest nieprawidłowe, wprowadź prawidłową nazwę gracza lub identyfikator uuid (z myślnikami).
 player-bought-from-your-store: <red>{0} zakupił {1} {2} w Twoim sklepie, i zarobiłeś {3}.
 reached-maximum-can-create: <red>Już utworzyłeś maksimum {0}/{1} sklepów!
-reached-maximum-create-limit: <red>Osiągnąłeś maksymalną liczbę sklepów, które możesz utworzyć
 translation-version: 'Wersja wsparcia: Hikari'
 no-double-chests: <red>Nie możesz stworzyć sklepu z podwójną skrzynią.
 price-too-cheap: <red>Cena musi być większa niż <yellow>${0}

@@ -54,8 +54,11 @@ public class ShopTypeEvent extends ShopSettingEvent<ShopType> {
    */
   @Override
   public ShopTypeEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopTypeEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopTypeEvent(newPhase, this.shop, this.old, this.updated);
+    }
+    return new ShopTypeEvent(newPhase, this.shop, this.old);
   }
 
   /**

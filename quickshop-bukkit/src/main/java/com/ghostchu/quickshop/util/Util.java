@@ -374,7 +374,10 @@ public class Util {
       yamlConfiguration.loadFromString(config);
       return yamlConfiguration.getItemStack("item");
     } catch(final Exception e) {
-      throw new InvalidConfigurationException("Exception in deserialize item: " + config, e);
+
+      QuickShop.getInstance().logger().warn("Failed load shop data, because target config can't deserialize the ItemStack", e);
+      Log.debug("Failed to load data to the ItemStack: " + config);
+      return null;
     }
   }
 
@@ -538,7 +541,12 @@ public class Util {
       }
     }
 
-    if(itemStack.hasItemMeta() && Objects.requireNonNull(itemStack.getItemMeta()).hasDisplayName() && !QuickShop.getInstance().getConfig().getBoolean("shop.force-use-item-original-name")) {
+    if(!itemStack.hasItemMeta() || QuickShop.getInstance().getConfig().getBoolean("shop.force-use-item-original-name")) {
+
+      return null;
+    }
+
+    if(Objects.requireNonNull(itemStack.getItemMeta()).hasDisplayName() || Objects.requireNonNull(itemStack.getItemMeta()).hasItemName()) {
       return plugin.getPlatform().getDisplayName(itemStack.getItemMeta());
     }
     return null;

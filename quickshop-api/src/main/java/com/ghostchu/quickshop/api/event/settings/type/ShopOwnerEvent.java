@@ -52,8 +52,12 @@ public class ShopOwnerEvent extends ShopSettingEvent<QUser> {
    */
   @Override
   public ShopOwnerEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopOwnerEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopOwnerEvent(newPhase, this.shop, this.old, this.updated);
+    }
+
+    return new ShopOwnerEvent(newPhase, this.shop, this.old);
   }
 
   /**

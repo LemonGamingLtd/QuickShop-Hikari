@@ -52,8 +52,11 @@ public class ShopPriceEvent extends ShopSettingEvent<Double> {
    */
   @Override
   public ShopPriceEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopPriceEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopPriceEvent(newPhase, this.shop, this.old, this.updated);
+    }
+    return new ShopPriceEvent(newPhase, this.shop, this.old);
   }
 
   /**

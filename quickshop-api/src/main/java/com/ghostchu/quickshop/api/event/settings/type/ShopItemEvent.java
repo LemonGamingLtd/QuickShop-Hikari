@@ -52,8 +52,11 @@ public class ShopItemEvent extends ShopSettingEvent<ItemStack> {
    */
   @Override
   public ShopItemEvent clone(final Phase newPhase) {
+    if(this.updated != null) {
 
-    return new ShopItemEvent(newPhase, this.shop, this.old, this.updated);
+      return new ShopItemEvent(newPhase, this.shop, this.old, this.updated);
+    }
+    return new ShopItemEvent(newPhase, this.shop, this.old);
   }
 
   /**
