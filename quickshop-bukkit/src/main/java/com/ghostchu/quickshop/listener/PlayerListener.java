@@ -45,6 +45,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
@@ -73,6 +74,14 @@ public class PlayerListener extends AbstractQSListener {
   public PlayerListener(final QuickShop plugin) {
 
     super(plugin);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onPlayerCommandPreprocessEvent(final PlayerCommandPreprocessEvent event) {
+    if (event.isCancelled() || !MenuManager.instance().inMenu(event.getPlayer().getUniqueId())) {
+      return;
+    }
+    event.setCancelled(true);
   }
 
   @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
