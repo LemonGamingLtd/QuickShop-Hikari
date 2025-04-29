@@ -130,7 +130,11 @@ public class InternalListener extends AbstractQSListener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void shopPrePurchase(final ShopPurchaseEvent event) {
-
+    // Prevent self-purchase
+    if (event.getPurchaser().equals(event.getShop().getOwner())) {
+      event.setCancelled(true, plugin.text().of(event.getPurchaser(), "shop-owner-self-trade-blocked").forLocale());
+      return;
+    }
     if(isForbidden(event.getShop().getLocation().getBlock().getType(), event.getShop().getItem().getType())) {
       event.setCancelled(true, plugin.text().of(event.getPurchaser(), "forbidden-vanilla-behavior").forLocale());
       return;
@@ -170,9 +174,9 @@ public class InternalListener extends AbstractQSListener {
       plugin.logEvent(new PlayerEconomyPreCheckLog(false, event.getPurchaser(), plugin.getEconomy().getBalance(event.getPurchaser(), event.getShop().getLocation().getWorld(), event.getShop().getCurrency())));
       plugin.logEvent(new PlayerEconomyPreCheckLog(false, event.getShop().getOwner(), plugin.getEconomy().getBalance(event.getShop().getOwner(), event.getShop().getLocation().getWorld(), event.getShop().getCurrency())));
     }
-    if(event.getPurchaser().equals(event.getShop().getOwner())) {
-      plugin.text().of(event.getPurchaser(), "shop-owner-self-trade").send();
-    }
+    // if(event.getPurchaser().equals(event.getShop().getOwner())) {
+    //   plugin.text().of(event.getPurchaser(), "shop-owner-self-trade").send();
+    // }
   }
 
   static class SpaceCache {
