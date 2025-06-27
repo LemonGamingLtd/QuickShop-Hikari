@@ -125,13 +125,22 @@ import net.tnemc.item.paper.PaperItemStack;
 import net.tnemc.item.providers.HelperMethods;
 import net.tnemc.menu.bukkit.BukkitMenuHandler;
 import net.tnemc.menu.bukkit.BukkitPlayer;
+import net.tnemc.menu.bukkit.listener.BukkitChatListener;
+import net.tnemc.menu.bukkit.listener.BukkitInventoryClickListener;
+import net.tnemc.menu.bukkit.listener.BukkitInventoryCloseListener;
 import net.tnemc.menu.core.MenuHandler;
 import net.tnemc.menu.core.compatibility.MenuPlayer;
 import net.tnemc.menu.core.manager.MenuManager;
 import net.tnemc.menu.folia.FoliaMenuHandler;
 import net.tnemc.menu.folia.FoliaPlayer;
+import net.tnemc.menu.folia.listener.FoliaChatListener;
+import net.tnemc.menu.folia.listener.FoliaInventoryClickListener;
+import net.tnemc.menu.folia.listener.FoliaInventoryCloseListener;
 import net.tnemc.menu.paper.PaperMenuHandler;
 import net.tnemc.menu.paper.PaperPlayer;
+import net.tnemc.menu.paper.listener.PaperChatListener;
+import net.tnemc.menu.paper.listener.PaperInventoryClickListener;
+import net.tnemc.menu.paper.listener.PaperInventoryCloseListener;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -238,6 +247,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
    * Whether we should use display items or not
    */
   private boolean display = true;
+  private boolean invalidProvider = false;
   @Getter
   private int displayItemCheckTicks;
   /**
@@ -508,7 +518,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     this.display = this.getConfig().getBoolean("shop.display-items");
     final int type = getConfig().getInt("shop.display-type");
     if(type != 2 && type != 900) {
-      this.display = false;
+      this.invalidProvider = true;
     }
 
     this.priceChangeRequiresFee = this.getConfig().getBoolean("shop.price-change-requires-fee");
@@ -618,6 +628,11 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     return this.display;
   }
 
+  public boolean isValidDisplayProvider() {
+
+    return !invalidProvider;
+  }
+
   @SuppressWarnings("removal")
   @Override
   @Deprecated(forRemoval = true)
@@ -693,11 +708,23 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     this.folia = new FoliaLib(javaPlugin);
 
     if(this.folia.isFolia()) {
-      this.menuHandler = new FoliaMenuHandler(javaPlugin, true);
+
+      Bukkit.getPluginManager().registerEvents(new FoliaChatListener(javaPlugin), javaPlugin);
+      Bukkit.getPluginManager().registerEvents(new FoliaInventoryClickListener(javaPlugin), javaPlugin);
+      Bukkit.getPluginManager().registerEvents(new FoliaInventoryCloseListener(javaPlugin), javaPlugin);
+      this.menuHandler = new FoliaMenuHandler(javaPlugin, false);
     } else if(this.folia.isPaper()) {
-      this.menuHandler = new PaperMenuHandler(javaPlugin, true);
+
+      Bukkit.getPluginManager().registerEvents(new PaperChatListener(javaPlugin), javaPlugin);
+      Bukkit.getPluginManager().registerEvents(new PaperInventoryClickListener(javaPlugin), javaPlugin);
+      Bukkit.getPluginManager().registerEvents(new PaperInventoryCloseListener(javaPlugin), javaPlugin);
+      this.menuHandler = new PaperMenuHandler(javaPlugin, false);
     } else {
-      this.menuHandler = new BukkitMenuHandler(javaPlugin, true);
+
+      Bukkit.getPluginManager().registerEvents(new BukkitChatListener(javaPlugin), javaPlugin);
+      Bukkit.getPluginManager().registerEvents(new BukkitInventoryClickListener(javaPlugin), javaPlugin);
+      Bukkit.getPluginManager().registerEvents(new BukkitInventoryCloseListener(javaPlugin), javaPlugin);
+      this.menuHandler = new BukkitMenuHandler(javaPlugin, false);
     }
 
     MenuManager.instance().addMenu(new ShopHistoryMenu());
@@ -829,7 +856,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
 
   private void loadVirtualDisplayItem() {
 
-    if(this.display) {
+    if(!invalidProvider) {
       //VirtualItem support
       if(AbstractDisplayItem.getNowUsing() == DisplayType.VIRTUALITEM) {
         logger.info("Using Virtual Displays. Attempting to initialize packet factory...");

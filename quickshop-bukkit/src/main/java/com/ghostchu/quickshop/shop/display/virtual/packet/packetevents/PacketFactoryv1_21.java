@@ -32,6 +32,7 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
@@ -83,7 +84,7 @@ public class PacketFactoryv1_21 implements PacketFactory<PacketWrapper<?>> {
 
     return new WrapperPlayServerSpawnEntity(id, identifier, SpigotConversionUtil.fromBukkitEntityType(type),
                                             SpigotConversionUtil.fromBukkitLocation(displayLocation),
-                                            0F, 0, null);
+                                            0F, 0, Vector3d.zero());
   }
 
   /**
@@ -96,16 +97,16 @@ public class PacketFactoryv1_21 implements PacketFactory<PacketWrapper<?>> {
    */
   @Override
   public PacketWrapper<?> createMetaDataPacket(final int id, @NotNull final ItemStack itemStack) {
-    final List<EntityData> data = new ArrayList<>();
-    data.add(new EntityData(5, EntityDataTypes.BOOLEAN, true));
-    data.add(new EntityData(8, EntityDataTypes.ITEMSTACK, SpigotConversionUtil.fromBukkitItemStack(itemStack)));
+    final List<EntityData<?>> data = new ArrayList<>();
+    data.add(new EntityData<>(5, EntityDataTypes.BOOLEAN, true));
+    data.add(new EntityData<>(8, EntityDataTypes.ITEMSTACK, SpigotConversionUtil.fromBukkitItemStack(itemStack)));
 
     if(QuickShop.getInstance().getConfig().getBoolean("shop.display-item-use-name")) {
 
-      final String itemName = GsonComponentSerializer.gson().serialize(Util.getItemStackName(itemStack));
+      //final String itemName = GsonComponentSerializer.gson().serialize(Util.getItemStackName(itemStack));
 
-      data.add(new EntityData(2, EntityDataTypes.OPTIONAL_COMPONENT, Optional.of(itemName)));
-      data.add(new EntityData(3, EntityDataTypes.BOOLEAN, true));
+      data.add(new EntityData<>(2, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(Util.getItemStackName(itemStack))));
+      data.add(new EntityData<>(3, EntityDataTypes.BOOLEAN, true));
     }
 
     return new WrapperPlayServerEntityMetadata(id, data);
