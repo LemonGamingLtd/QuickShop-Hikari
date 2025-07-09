@@ -507,7 +507,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     if(unregisterListeners) {
       HandlerList.unregisterAll(javaPlugin);
     }
-    folia.getImpl().cancelAllTasks();
+    folia.getScheduler().cancelAllTasks();
   }
 
   /**
@@ -805,7 +805,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     /* Delay the Economy system load, give a chance to let economy system register. */
     /* And we have a listener to listen the ServiceRegisterEvent :) */
     Log.debug("Scheduled economy system loading.");
-    folia.getImpl().runLater(economyLoader::load, 1);
+    folia.getScheduler().runLater(economyLoader::load, 1);
     registerTasks();
     Log.debug("DisplayItem selected: " + AbstractDisplayItem.getNowUsing().name());
     registerCommunicationChannels();
@@ -902,12 +902,11 @@ public class QuickShop implements QuickShopAPI, Reloadable {
 
     if(this.display && getConfig().getBoolean("shop.display-auto-despawn")) {
       this.displayAutoDespawnWatcher = new DisplayAutoDespawnWatcher(this);
-      //BUKKIT METHOD SHOULD ALWAYS EXECUTE ON THE SERVER MAIN THEAD
-      this.displayAutoDespawnWatcher.runTaskTimer(javaPlugin, 20, getConfig().getInt("shop.display-check-time")); // not worth async
+      this.displayAutoDespawnWatcher.start(20, getConfig().getInt("shop.display-check-time"));
       logger.warn("Unrecommended use of display-auto-despawn. This feature may have a heavy impact on the server's performance!");
     } else {
       if(this.displayAutoDespawnWatcher != null) {
-        this.displayAutoDespawnWatcher.cancel();
+        this.displayAutoDespawnWatcher.stop();
         this.displayAutoDespawnWatcher = null;
       }
     }
@@ -976,13 +975,13 @@ public class QuickShop implements QuickShopAPI, Reloadable {
           logger.error("Shop.display-items-check-ticks is too low! It may cause HUGE lag! Pick a number > 3000");
         }
         logger.info("Registering DisplayCheck task....");
-        folia.getImpl().runTimerAsync(()->{
+        folia.getScheduler().runTimerAsync(()->{
           for(final Shop shop : getShopManager().getLoadedShops()) {
             //Shop may be deleted or unloaded when iterating
             if(!shop.isLoaded()) {
               continue;
             }
-            shop.checkDisplay();
+            folia.getScheduler().runAtLocationLater(shop.getLocation(), shop::checkDisplay, 1L);
           }
         }, 1L, getDisplayItemCheckTicks());
       } else if(getDisplayItemCheckTicks() == 0) {
@@ -1194,7 +1193,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
       logWatcher.close();
     }
     logger.info("Shutting down scheduled timers...");
-    folia.getImpl().cancelAllTasks();
+    folia.getScheduler().cancelAllTasks();
     if(calendarWatcher != null) {
       logger.info("Shutting down event calendar watcher...");
       calendarWatcher.stop();
