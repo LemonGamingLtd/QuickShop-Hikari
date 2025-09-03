@@ -1,16 +1,22 @@
 package com.ghostchu.quickshop.util;
 
 import com.ghostchu.quickshop.QuickShop;
+import com.ghostchu.quickshop.api.event.Phase;
+import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.ghostchu.quickshop.api.inventory.CountableInventoryWrapper;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapperIterator;
 import com.ghostchu.quickshop.api.registry.BuiltInRegistry;
 import com.ghostchu.quickshop.api.registry.builtin.itemexpression.ItemExpressionRegistry;
+import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.ItemMatcher;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.api.shop.ShopAction;
 import com.ghostchu.quickshop.api.shop.permission.BuiltInShopPermission;
 import com.ghostchu.quickshop.common.util.CommonUtil;
 import com.ghostchu.quickshop.common.util.RomanNumber;
+import com.ghostchu.quickshop.obj.QUserImpl;
+import com.ghostchu.quickshop.shop.SimpleInfo;
 import com.ghostchu.quickshop.shop.display.AbstractDisplayItem;
 import com.ghostchu.quickshop.util.logger.Log;
 import io.papermc.lib.PaperLib;
@@ -20,9 +26,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -39,6 +47,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -55,24 +64,29 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.management.ManagementFactory;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Util {
 
-  private static final EnumMap<Material, Integer> CUSTOM_STACKSIZE = new EnumMap<>(Material.class);
-  private static final EnumSet<Material> SHOPABLES = EnumSet.noneOf(Material.class);
+  private static final Map<Material, Integer> CUSTOM_STACKSIZE = new HashMap<>();
+  private static final Set<Material> SHOPABLES = new HashSet<>();
   private static final List<BlockFace> VERTICAL_FACING = List.of(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
   private static int BYPASSED_CUSTOM_STACKSIZE = -1;
   private static Yaml yaml = null;
@@ -89,7 +103,7 @@ public class Util {
 
   @Deprecated
   @ApiStatus.Internal
-  public static EnumMap<Material, Integer> getCustomStacksize() {
+  public static Map<Material, Integer> getCustomStacksize() {
 
     return CUSTOM_STACKSIZE;
   }
@@ -106,11 +120,10 @@ public class Util {
    */
   @ApiStatus.Internal
   @Deprecated
-  public static EnumSet<Material> getShopables() {
+  public static Set<Material> getShopables() {
 
     return SHOPABLES;
   }
-
 
   /**
    * Execute the Runnable in async thread. If it already on main-thread, will be move to async
@@ -127,6 +140,127 @@ public class Util {
     }
 
     QuickShop.folia().getScheduler().runLaterAsync(runnable, 0);
+  }
+
+  public static void playClickSound(@NotNull final Player player) {
+
+    if(plugin.getConfig().getBoolean("effect.sound.onclick")) {
+      player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_FAIL, 80.f, 1.0f);
+    }
+  }
+
+  public static boolean createShop(@NotNull final Player player, @Nullable final Block block, @NotNull final BlockFace blockFace, @NotNull final EquipmentSlot hand, @NotNull final ItemStack item) {
+
+    Log.debug("==== Entering Shop Creation ====");
+
+    final QUser qUser = QUserImpl.createFullFilled(player);
+    if(block == null) {
+      Log.debug("Block is null");
+      return false; // This shouldn't happen because we have checked action type.
+    }
+    if(player.getGameMode() != GameMode.SURVIVAL) {
+      Log.debug("Not in survival mode");
+      return false; // Only survival :)
+    }
+
+    final ItemStack stack = item.clone();
+    if(stack.getType().isAir()) {
+      Log.debug("Invalid trade item: air");
+      return false; // Air cannot be used for trade
+    }
+    if(!Util.canBeShop(block)) {
+      Log.debug("Invalid shop block");
+      return false;
+    }
+
+    if(plugin.getConfig().getBoolean("disable-quick-create")) {
+      Log.debug("quick create disabled");
+      return false;
+    }
+    if(plugin.getConfig().getBoolean("shop.disable-quick-create")) {
+      Log.debug("quick create disabled");
+      return false;
+    }
+
+    ShopAction action = null;
+    if(plugin.perm().hasPermission(player, "quickshop.create.sell")) {
+      action = ShopAction.CREATE_SELL;
+    } else if(plugin.perm().hasPermission(player, "quickshop.create.buy")) {
+      action = ShopAction.CREATE_BUY;
+    }
+    if(action == null) {
+      Log.debug("No permission");
+      // No permission
+      return false;
+    }
+    // Double chest creation permission check
+    if(Util.isDoubleChest(block.getBlockData()) &&
+       !plugin.perm().hasPermission(player, "quickshop.create.double")) {
+      plugin.text().of(player, "no-double-chests").send();
+      return false;
+    }
+    // Blacklist check
+    if(plugin.getShopItemBlackList().isBlacklisted(stack)
+       && !plugin.perm()
+            .hasPermission(player, "quickshop.bypass." + stack.getType().name())) {
+      plugin.text().of(player, "blacklisted-item").send();
+      Log.debug("Invalid item - blacklisted");
+      return false;
+    }
+    // Check if had enderchest shop creation permission
+    if(block.getType() == Material.ENDER_CHEST
+       && !plugin.perm().hasPermission(player, "quickshop.create.enderchest")) {
+      Log.debug("Invalid permission for enderchest");
+      return false;
+    }
+    // Check if block is a wall sign
+    if(Util.isWallSign(block.getType())) {
+      Log.debug("Block is wallsign");
+      return false;
+    }
+    // Finds out where the sign should be placed for the shop
+    final Block last;
+    if(Util.getVerticalFacing().contains(blockFace)) {
+
+      last = block.getRelative(blockFace);
+    } else {
+
+      final Location playerLocation = player.getLocation();
+      final double x = playerLocation.getX() - block.getX();
+      final double z = playerLocation.getZ() - block.getZ();
+      if(Math.abs(x) > Math.abs(z)) {
+        if(x > 0) {
+          last = block.getRelative(BlockFace.EAST);
+        } else {
+          last = block.getRelative(BlockFace.WEST);
+        }
+      } else {
+        if(z > 0) {
+          last = block.getRelative(BlockFace.SOUTH);
+        } else {
+          last = block.getRelative(BlockFace.NORTH);
+        }
+      }
+    }
+
+    // Send creation menu.
+    final SimpleInfo info = new SimpleInfo(block.getLocation(), action, stack, last, false);
+
+    final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, qUser, block.getLocation());
+
+    if(event.callCancellableEvent()) {
+
+      Log.debug("ShopCreateEvent PRE_CANCELLABLE phase cancelled");
+      return false;
+    }
+
+    plugin.getShopManager().getInteractiveManager().put(player.getUniqueId(), info);
+    plugin.text().of(player, "how-much-to-trade-for", Util.getItemStackName(stack),
+                     plugin.isAllowStack() &&
+                     plugin.perm().hasPermission(player, "quickshop.create.stacks")
+                     ? stack.getAmount() : 1).send();
+    Log.debug("==== Ending Shop Creation ====");
+    return false;
   }
 
   /**
@@ -321,6 +455,36 @@ public class Util {
     for(final String log : logs) {
       Log.debug(Level.INFO, log, caller);
     }
+  }
+
+  public static BigDecimal parse(final String input) {
+
+    try {
+
+      return new BigDecimal(input);
+    } catch(final Exception ignore) {
+
+      final String shortcuts = "kMGTPEZYXWVUN₮";
+      final Matcher matcher = Pattern.compile("([0-9]+(?:\\.[0-9]*)?)[" + shortcuts + "]$").matcher(input);
+      if(matcher.find()) {
+
+        final BigDecimal baseValue = new BigDecimal(matcher.group(1));
+        final char suffix = input.charAt(input.length() - 1);
+        final int exponent = (shortcuts.indexOf(suffix) + 1) * 3; // Exponent based on position in the string
+
+        if(exponent > 0) {
+
+          final int digits = QuickShop.getInstance().getConfig().getInt("maximum-digits-in-price", -1);
+          final BigDecimal value = baseValue.multiply(BigDecimal.TEN.pow(exponent));
+          if(digits == -1) {
+            return value;
+          }
+
+          return value.setScale(digits, RoundingMode.HALF_UP);
+        }
+      }
+    }
+    return null;
   }
 
   /**
@@ -596,7 +760,7 @@ public class Util {
   public static boolean findStringInList(@NotNull final List<Component> components, @NotNull final String find) {
 
     for(final Component name : components) {
-        if(findStringInComponent(name, find)) { return true; }
+      if(findStringInComponent(name, find)) { return true; }
     }
 
     return false;
@@ -885,14 +1049,17 @@ public class Util {
       if("*".equalsIgnoreCase(data[0])) {
         BYPASSED_CUSTOM_STACKSIZE = Integer.parseInt(data[1]);
       }
+
       final Material mat = Material.matchMaterial(data[0]);
       if(mat == null || mat == Material.AIR) {
         plugin.logger().warn("{} not a valid material in custom-item-stacksize section.", material);
         continue;
       }
+
       CUSTOM_STACKSIZE.put(mat, Integer.parseInt(data[1]));
     }
     try {
+
       dyeColor = DyeColor.valueOf(plugin.getConfig().getString("shop.sign-dye-color"));
     } catch(final Exception ignored) {
     }
@@ -983,11 +1150,6 @@ public class Util {
         return false;
       }
     }
-  }
-
-  public static boolean isDisplayAllowBlock(@NotNull final Material mat) {
-
-    return mat.isTransparent() || isWallSign(mat);
   }
 
   /**
@@ -1215,6 +1377,7 @@ public class Util {
     if(PackageUtil.parsePackageProperly("forceBungeeCord").asBoolean(false)) {
       return true;
     }
+
     return Bukkit.getServer().spigot().getConfig().getBoolean("settings.bungeecord");
   }
 }

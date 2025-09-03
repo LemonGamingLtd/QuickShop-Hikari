@@ -5,7 +5,7 @@ disabled-in-this-world: <red>Obchod je v tomto světě zakázán
 how-much-to-trade-for: <green>Zadejte v chatu, kolik chcete obchodovat <yellow>{1}krát {0}</yellow>.
 client-language-changed: <green>Plugin zjistil, že nastavení jazyka vašeho klienta bylo změněno, nyní pro Vás používáme {0} jazyků.
 shops-backingup: Vytváření zálohy obchodu z databáze...
-_comment: Ahoj překladatel! Pokud to upravujete na GitHubu nebo pomocí zdrojového kódu, měli byste místo toho jít na https://crowdin.com/project/quickshop-hikari.
+_comment: Ahoj překladatel! Pokud to upravujete na GitHubu nebo pomocí zdrojového kódu, měli byste místo toho jít na https://crowdin.com/project/qs-hikari.
 unlimited-shop-owner-changed: <yellow>Majitel tohoto neomezeného obchodu byl změněn na {0}.
 bad-command-usage-detailed: '<red>Špatné parametry příkazů! Povoleny jsou následující parametry: <gray>{0}'
 thats-not-a-number: <red>Neplatné číslo
@@ -310,6 +310,11 @@ signs:
   item-left: ''
 negative-amount: <red>Derp, nemůžeš obchodovat se zápornými částkami
 display-turn-on: <green>Úspěšně zapnuto zobrazení obchodu.
+display-turn-off: <green>Úspěšně vypnuto zobrazení obchodu.
+display-turn-on-owned: <green>Successfully turned on shop display for all owned shops.
+display-turn-off-owned: <green>Successfully turned off shop display for all owned shops.
+display-turn-on-all: <green>Successfully turned on shop display for all server shops.
+display-turn-off-all: <green>Successfully turned off shop display for all server shops.
 shop-staff-deleted: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Úspěšně byl odebrán {0} jako člen z tvého obchodu.
 nearby-shop-header: '<aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Nejbližší obchod odpovídající <aqua>{0}<gray>:'
 backup-failed: Nelze zálohovat databázi. Podrobnosti naleznete v konzole.
@@ -442,6 +447,7 @@ command:
     taxaccount: <white>Nastaví daně, které obchod zaplatí
     name: <yellow>Pojmenování obchodu na konkrétní název
     toggledisplay: <white>Přepne obchodu status ukazovaného předmětu
+    toggledisplayall: <yellow>Toggle all shop display items you own, or for the server.
     permission: <yellow>Správa oprávnění obchodu
     lookup: <yellow>Spravovat tabulku položek pro vyhledávání
     database: <yellow>View and maintain QuickShop database
@@ -495,7 +501,6 @@ no-permission: <red>Na tuto akci nemáš práva.
 chest-was-removed: <red>Truhla byla odstraněna.
 you-cant-afford-to-buy: <red>Toto stojí {0}, ale ty máš jen {1}
 shops-removed-in-world: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Celkem <aqua>{0}<gray> obchodů bylo smazáno ve světě <aqua>{1}<gray>.
-display-turn-off: <green>Úspěšně vypnuto zobrazení obchodu.
 client-language-unsupported: <yellow>QuickShop nepodporuje váš klientský jazyk, nastavili jsme vám tedy záložní na {0} locales.
 language-version: '63'
 not-managed-shop: <red>Nejsi vlastník nebo moderátor obchodu
@@ -1650,7 +1655,7 @@ about:
     - "<aqua>Release <yellow>>></yellow> <green>{2}</green></aqua>"
     - "<aqua>Developers <yellow>>></yellow> <color:#218bff><hover:show_text:'<yellow>Click to check contributors'><click:open_url:'https://github.com/QuickShop-Community/QuickShop-Hikari/graphs/contributors'>[View contributors on GitHub]</click></hover></color></aqua>"
     - "<aqua>Localized members <gold>({4})</gold>: <yellow>>></yellow> <green>{5}</green></aqua>"
-    - "  <yellow>+ <color:#43A047><hover:show_text:'<yellow>Click to open Crowdin translate page'><click:open_url:'https://crowdin.com/project/quickshop-hikari'>[Help translate on Crowdin]</click></hover></color></yellow>"
+    - "  <yellow>+ <color:#43A047><hover:show_text:'<yellow>Click to open Crowdin translate page'><click:open_url:'https://crowdin.com/project/qs-hikari'>[Help translate on Crowdin]</click></hover></color></yellow>"
     - "<aqua>Donation Key <yellow>>></yellow> <green>{6}</green></aqua>"
   valid-donation-key: "<color:#00AFF1>Bound to <color:#F9C23C>{0}</color></color>"
   invalid-donation-key: "<gray>Invalid donation key</gra>"

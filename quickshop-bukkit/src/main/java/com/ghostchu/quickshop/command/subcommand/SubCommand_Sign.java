@@ -34,7 +34,7 @@ public class SubCommand_Sign implements CommandHandler<Player> {
       return;
     }
     if(!shop.playerAuthorize(sender.getUniqueId(), BuiltInShopPermission.SET_SIGN_TYPE) && !plugin.perm().hasPermission(sender, "quickshop.other.sign")) {
-      plugin.text().of(sender, "no-permission");
+      plugin.text().of(sender, "no-permission").send();
       return;
     }
 
@@ -42,7 +42,7 @@ public class SubCommand_Sign implements CommandHandler<Player> {
       plugin.text().of(sender, "no-sign-type-given", CommonUtil.list2String(getAvailableSignMaterials().stream().map(Enum::name).toList())).send();
       return;
     }
-    final String signType = parser.getArgs().get(0);
+    final String signType = parser.getArgs().getFirst();
     final Material material = Material.matchMaterial(signType.trim());
     if(material == null || !Tag.WALL_SIGNS.isTagged(material)) {
       plugin.text().of(sender, "sign-type-invalid", signType).send();

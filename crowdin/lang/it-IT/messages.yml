@@ -5,7 +5,7 @@ disabled-in-this-world: <red>QuickShop è disabilitato in questo mondo
 how-much-to-trade-for: <green>Scrivi in chat, per quanto desideri scambiare <yellow>{1}x {0}<green>.
 client-language-changed: <green>QuickShop ha rilevato che l'impostazione della lingua del tuo client è stata modificata, ora stiamo utilizzando {0} locale per te.
 shops-backingup: Creazione backup negozio dal database...
-_comment: Ciao Traduttore, se stai modificando da GitHub o attraverso la sorgente di codice, dovresti andare su https://crowdin.com/project/quickshop-hikari.
+_comment: Ciao Traduttore, se stai modificando da GitHub o attraverso la sorgente di codice, dovresti andare su https://crowdin.com/project/qs-hikari.
 unlimited-shop-owner-changed: <yellow>Questo proprietario di negozio illimitato è stato cambiato in {0}.
 bad-command-usage-detailed: '<red>Argomenti di comando errati! Accetta i seguenti parametri: <gray>{0}'
 thats-not-a-number: <red>Numero non valido
@@ -318,6 +318,11 @@ signs:
   item-left: ''
 negative-amount: <red>Non puoi scambiare importi negativi
 display-turn-on: <green>Accensione riuscita del display del negozio.
+display-turn-off: <green>Spegnimento con successo il display del negozio.
+display-turn-on-owned: <green>Successfully turned on shop display for all owned shops.
+display-turn-off-owned: <green>Successfully turned off shop display for all owned shops.
+display-turn-on-all: <green>Successfully turned on shop display for all server shops.
+display-turn-off-all: <green>Successfully turned off shop display for all server shops.
 shop-staff-deleted: <green>Rimosso {0} come membro dello staff per il tuo negozio.
 nearby-shop-header: '<green>Abbinamento negozio nelle vicinanze <aqua>{0}<green>:'
 backup-failed: Impossibile eseguire il backup del database. Controlla la console per i dettagli.
@@ -450,6 +455,7 @@ command:
     taxaccount: <yellow>Imposta la tassa utilizzata dal negozio
     name: <yellow>Naming a shop to specific name
     toggledisplay: <yellow>Attiva/disattiva lo stato dell'articolo di visualizzazione del negozio
+    toggledisplayall: <yellow>Toggle all shop display items you own, or for the server.
     permission: <yellow>Gestione autorizzazioni negozio
     lookup: <yellow>Gestisce la tabella degli elementi ricercati
     database: <yellow>View and maintain QuickShop database
@@ -503,7 +509,6 @@ no-permission: <red>Non hai il permesso per farlo.
 chest-was-removed: <red>La cassa è stata rimossa.
 you-cant-afford-to-buy: <red>Questo costa {0}, ma tu hai solo {1}
 shops-removed-in-world: <aqua>{0}<yellow> negozi sono stati eliminati nel mondo <aqua>{1}<yellow>.
-display-turn-off: <green>Spegnimento con successo il display del negozio.
 client-language-unsupported: <yellow>QuickShop non supporta la lingua del tuo client, ora siamo utilizzando {0} locale.
 language-version: '63'
 not-managed-shop: <red>Non sei il proprietario o moderatore di questo negozio
@@ -1657,7 +1662,7 @@ about:
     - "<aqua>Release <yellow>>></yellow> <green>{2}</green></aqua>"
     - "<aqua>Developers <yellow>>></yellow> <color:#218bff><hover:show_text:'<yellow>Clicca per controllare i collaboratori'><click:open_url:'https://github.com/QuickShop-Community/QuickShop-Hikari/graphs/contributors'>[Vedi i collaboratori su GitHub]</click></hover></color></aqua>"
     - "<aqua>membri localizzati <gold>({4})</gold>: <yellow>>></yellow> <green>{5}</green></aqua>"
-    - "  <yellow>+ <color:#43A047><hover:show_text:'<yellow>Click to open Crowdin translate page'><click:open_url:'https://crowdin.com/project/quickshop-hikari'>[Help translate on Crowdin]</click></hover></color></yellow>"
+    - "  <yellow>+ <color:#43A047><hover:show_text:'<yellow>Click to open Crowdin translate page'><click:open_url:'https://crowdin.com/project/qs-hikari'>[Help translate on Crowdin]</click></hover></color></yellow>"
     - "<aqua>Donation Key <yellow>>></yellow> <green>{6}</green></aqua>"
   valid-donation-key: "<color:#00AFF1>Bound to <color:#F9C23C>{0}</color></color>"
   invalid-donation-key: "<gray>Chiave donazione non valida</gra>"

@@ -26,7 +26,6 @@ import io.papermc.lib.PaperLib;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
@@ -56,8 +55,6 @@ import java.util.function.Function;
 @ApiStatus.Experimental
 public abstract class AbstractShopManager implements ShopManager {
 
-  @Getter
-  protected ShopCache shopCache;
   protected static final DecimalFormat STANDARD_FORMATTER = new DecimalFormat("#.#########");
   // the performance impact on busy server
   protected final Cache<UUID, Shop> shopRuntimeUUIDCaching =
@@ -68,18 +65,18 @@ public abstract class AbstractShopManager implements ShopManager {
                   .initialCapacity(50)
                   .build();
   protected final QuickShop plugin;
-
   protected final EconomyFormatter formatter;
   protected final Map<String, Map<ShopChunk, Map<Location, Shop>>> shops = Maps.newConcurrentMap();
   protected final Set<Shop> loadedShops = Sets.newConcurrentHashSet(); // Handle it by collection to reduce
+  @Getter
+  protected ShopCache shopCache;
 
 
   public AbstractShopManager(@NotNull final QuickShop plugin) {
 
     Util.ensureThread(false);
     this.plugin = plugin;
-    this.formatter = new EconomyFormatter(plugin, plugin::getEconomy);
-
+    this.formatter = new EconomyFormatter(plugin);
   }
 
   public void init() {
@@ -570,7 +567,7 @@ public abstract class AbstractShopManager implements ShopManager {
     final List<Shop> worldShops = new ArrayList<>();
     for(final Shop shop : getAllShops()) {
       final Location location = shop.getLocation();
-      if(location.isWorldLoaded() && StringUtils.equals(worldName, location.getWorld().getName())) {
+      if(location.isWorldLoaded() && com.ghostchu.quickshop.common.util.CommonUtil.strEquals(worldName, location.getWorld().getName())) {
         worldShops.add(shop);
       }
     }

@@ -5,7 +5,7 @@ disabled-in-this-world: <red>已停用此世界的 QuickShop
 how-much-to-trade-for: <green>請在聊天室中輸入你想買賣 <yellow>{1} 個 {0} <green>的價格。
 client-language-changed: <green>QuickShop 偵測到你的用戶端語言已切換，我們現在為你切換為 {0}。
 shops-backingup: 正在把商店資料備份到資料庫……
-_comment: 你好翻譯者！假若你正在從 Github 或其它代管平台編輯，你應此前往 https://crowdin.com/project/quickshop-hikari 進行翻譯。
+_comment: 你好翻譯者！假若你正在從 Github 或其它代管平台編輯，你應此前往 https://crowdin.com/project/qs-hikari 進行翻譯。
 unlimited-shop-owner-changed: <yellow>已變更此無限商店擁有者為 {0}。
 bad-command-usage-detailed: '<red>無效指令參數！接受以下參數：<gray>{0}'
 thats-not-a-number: <red>無效的數字
@@ -252,7 +252,7 @@ tableformat:
   right_half_line: <dark_purple>--------------------+
   full_line: <dark_purple>+---------------------------------------------------+
   left_begin: '<dark_purple>| '
-quickshop-gui-preview: QuickShop 物品預覽介面
+quickshop-gui-preview: 儲物箱商店物品介面預覽
 translate-not-completed-yet-click: '{0} 的翻譯完成度為 {1}，你想幫助我們改進翻譯嗎？點擊這裡！'
 taxaccount-invalid: <red>無效的目標帳戶，請輸入有效的玩家名稱或 uuid（須加破折號）。
 player-bought-from-your-store: <red>{0} 從你的商店購買了 {1} 個 {2}，總共讓你進賺了 {3}。
@@ -321,6 +321,11 @@ signs:
   item-left: ''
 negative-amount: <red>我的天啊，沒想到居然有人想要交易負數的數量。
 display-turn-on: <green>成功地啟用商店懸浮物顯示。
+display-turn-off: <green>成功地關閉商店懸浮物顯示。
+display-turn-on-owned: <green>Successfully turned on shop display for all owned shops.
+display-turn-off-owned: <green>Successfully turned off shop display for all owned shops.
+display-turn-on-all: <green>Successfully turned on shop display for all server shops.
+display-turn-off-all: <green>Successfully turned off shop display for all server shops.
 shop-staff-deleted: <green>成功地將員工 {0} 從你的商店移除。
 nearby-shop-header: '<green>附近匹配商店 <aqua>{0}</aqua>：'
 backup-failed: 無法備份商店資料庫，請查看控制台以獲得詳細資訊。
@@ -453,6 +458,7 @@ command:
     taxaccount: <yellow>設定商店使用的稅金帳戶
     name: <yellow>命名商店一個專有名稱
     toggledisplay: <yellow>切換商店顯示物品狀態
+    toggledisplayall: <yellow>Toggle all shop display items you own, or for the server.
     permission: <yellow>商店權限管理
     lookup: <yellow>管理物品索引表
     database: <yellow>查看和維護 QuickShop 資料庫
@@ -507,7 +513,6 @@ no-permission: <dark_red>你沒有使用此指令的權限。
 chest-was-removed: <red>儲物箱已被移除。
 you-cant-afford-to-buy: <red>商品價格是 {0} ，但是你只有 {1}。
 shops-removed-in-world: <yellow>世界 <aqua>{1} <yellow>總共有 <aqua>{0} <yellow>個商店被刪除。
-display-turn-off: <green>成功地關閉商店懸浮物顯示。
 client-language-unsupported: <yellow>QuickShop 不支援你的用戶端語言，我們現在將它還原為 {0}。
 language-version: '63'
 not-managed-shop: <red>你沒有管理此商店的權限
@@ -1667,7 +1672,7 @@ about:
     - "<aqua>正式版 <yellow>>></yellow> <green>{2}</green></aqua>"
     - "<aqua>Developers <yellow>>></yellow> <color:#218bff><hover:show_text:'<yellow>Click to check contributors'><click:open_url:'https://github.com/QuickShop-Community/QuickShop-Hikari/graphs/contributors'>[View contributors on GitHub]</click></hover></color></aqua>"
     - "<aqua>本地化成員 <gold>({4})</gold>: <yellow>>></yellow> <green>{5}</green></aqua>"
-    - "  <yellow>+ <color:#43A047><hover:show_text:'<yellow>點擊開啟 Crowdin 翻譯頁面><click:open_url:'https://crowdin.com/project/quickshop-hikari'>[在 Crowdin 上協助翻譯]</click></hover></color></yellow>"
+    - "  <yellow>+ <color:#43A047><hover:show_text:'<yellow>點擊開啟 Crowdin 翻譯頁面><click:open_url:'https://crowdin.com/project/qs-hikari'>[在 Crowdin 上協助翻譯]</click></hover></color></yellow>"
     - "<aqua>贊助密鑰 <yellow>>></yellow> <green>{6}</green></aqua>"
   valid-donation-key: "<color:#00AFF1>綁定到 <color:#F9C23C>{0}</color></color>"
   invalid-donation-key: "<gray>無效的贊助密鑰</gray>"

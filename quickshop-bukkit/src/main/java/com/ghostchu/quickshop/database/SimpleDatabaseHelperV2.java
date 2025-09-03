@@ -24,7 +24,6 @@ import com.ghostchu.quickshop.shop.cache.SimpleShopInventoryCountCache;
 import com.ghostchu.quickshop.util.PackageUtil;
 import com.ghostchu.quickshop.util.logger.Log;
 import com.ghostchu.quickshop.util.performance.PerfMonitor;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -214,6 +213,7 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
   }
 
   private void addEncodedColumn() {
+
     fastBackup();
     try {
       getManager().alterTable(DataTables.DATA.getName())
@@ -330,7 +330,11 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
   @NotNull
   public CompletableFuture<@NotNull Long> createShop(final long dataId) {
 
-    Validate.isTrue(dataId > 0, "Data ID must be greater than 0!");
+    if(dataId <= 0) {
+
+      throw new IllegalArgumentException("Shop id must be greater than 0. Provided ID: " + dataId);
+    }
+
     return DataTables.SHOPS.createInsert()
             .setColumnNames("data")
             .setParams(dataId)
@@ -341,7 +345,11 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
   @Override
   public CompletableFuture<@NotNull Void> createShopMap(final long shopId, @NotNull final Location location) {
 
-    Validate.isTrue(shopId > 0, "Shop ID must be greater than 0!");
+    if(shopId <= 0) {
+
+      throw new IllegalArgumentException("Shop id must be greater than 0. Provided ID: " + shopId);
+    }
+
     return DataTables.SHOP_MAP.createReplace()
             .setColumnNames("world", "x", "y", "z", "shop")
             .setParams(location.getWorld().getName(),
@@ -624,7 +632,11 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
   @Override
   public @NotNull CompletableFuture<@NotNull Integer> removeData(final long dataId) {
 
-    Validate.isTrue(dataId > 0, "Data ID must be greater than 0!");
+    if(dataId <= 0) {
+
+      throw new IllegalArgumentException("Data id must be greater than 0. Provided ID: " + dataId);
+    }
+
     return DataTables.DATA.createDelete()
             .addCondition("id", dataId)
             .build().executeFuture(lines->lines);
@@ -633,7 +645,12 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
   @Override
   public @NotNull CompletableFuture<@NotNull Integer> removeShop(final long shopId) {
 
-    Validate.isTrue(shopId > 0, "Shop ID must be greater than 0!");
+
+    if(shopId <= 0) {
+
+      throw new IllegalArgumentException("Shop id must be greater than 0. Provided ID: " + shopId);
+    }
+
     return DataTables.SHOPS.createDelete()
             .addCondition("id", shopId)
             .build().executeFuture(lines->lines);
@@ -731,8 +748,8 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
     }
 
     final var action = new PreparedSQLBatchUpdateActionImpl<>((SQLManagerImpl)getManager(), Integer.class,
-                                                        "INSERT INTO " + DataTables.PLAYERS.getName() + "(uuid, locale, cachedName) VALUES (?, ?, ?) " +
-                                                        "ON DUPLICATE KEY UPDATE cachedName = ?"
+                                                              "INSERT INTO " + DataTables.PLAYERS.getName() + "(uuid, locale, cachedName) VALUES (?, ?, ?) " +
+                                                              "ON DUPLICATE KEY UPDATE cachedName = ?"
     );
     for(final Triple<UUID, String, String> data : unspecificLocale) {
       action.addParamsBatch(data.getLeft().toString(), "en_us", data.getRight(), data.getRight());
@@ -747,7 +764,12 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
   @Override
   public @NotNull CompletableFuture<@NotNull Integer> updateExternalInventoryProfileCache(final long shopId, final int space, final int stock) {
 
-    Validate.isTrue(shopId > 0, "Shop ID must be greater than 0!");
+
+    if(shopId <= 0) {
+
+      throw new IllegalArgumentException("Shop id must be greater than 0. Provided ID: " + shopId);
+    }
+
     return DataTables.EXTERNAL_CACHE.createReplace()
             .setColumnNames("shop", "space", "stock")
             .setParams(shopId, space, stock)
@@ -919,6 +941,23 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
     }
   }
 
+  private void performLogPurchasesIndex() {
+
+    try {
+      getManager().alterTable(DataTables.LOG_PURCHASE.getName())
+              .addIndex(IndexType.INDEX, "idx_log_purchase_shop", "shop")
+              .execute();
+      getManager().alterTable(DataTables.LOG_PURCHASE.getName())
+              .addIndex(IndexType.INDEX, "idx_log_purchase_time", "time")
+              .execute();
+      getManager().alterTable(DataTables.LOG_PURCHASE.getName())
+              .addIndex(IndexType.INDEX, "idx_log_purchase_buyer", "buyer")
+              .execute();
+    } catch(final SQLException e) {
+      plugin.logger().warn("Cannot setup the table index", e);
+    }
+  }
+
   static class DatabaseUpgrade {
 
     private final SimpleDatabaseHelperV2 parent;
@@ -1024,24 +1063,6 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
       return true;
     }
   }
-
-  private void performLogPurchasesIndex() {
-
-    try {
-      getManager().alterTable(DataTables.LOG_PURCHASE.getName())
-              .addIndex(IndexType.INDEX, "idx_log_purchase_shop", "shop")
-              .execute();
-      getManager().alterTable(DataTables.LOG_PURCHASE.getName())
-              .addIndex(IndexType.INDEX, "idx_log_purchase_time", "time")
-              .execute();
-      getManager().alterTable(DataTables.LOG_PURCHASE.getName())
-              .addIndex(IndexType.INDEX, "idx_log_purchase_buyer", "buyer")
-              .execute();
-    } catch(final SQLException e) {
-      plugin.logger().warn("Cannot setup the table index", e);
-    }
-  }
-
 
   private record ShopInfo(long shopID, String world, int x, int y, int z) implements InfoRecord {
 

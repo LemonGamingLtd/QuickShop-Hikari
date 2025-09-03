@@ -1,6 +1,6 @@
 package com.ghostchu.quickshop.api.shop;
 
-import com.ghostchu.quickshop.api.economy.AbstractEconomy;
+import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.cache.ShopInventoryCountCache;
@@ -37,12 +37,13 @@ public interface ShopManager {
    * @param info           The info of the shop
    * @param shop           The shop
    * @param amount         The amount of the item/stack
-   * @return               If the transaction was successfull
+   *
+   * @return If the transaction was successfull
    */
   boolean actionBuying(
           @NotNull Player buyer,
           @NotNull InventoryWrapper buyerInventory,
-          @NotNull AbstractEconomy eco,
+          @NotNull EconomyProvider eco,
           @NotNull Info info,
           @NotNull Shop shop,
           int amount);
@@ -65,12 +66,13 @@ public interface ShopManager {
    * @param info            The info of the shop
    * @param shop            The shop
    * @param amount          The amount of the item/stack
-   * @return                If the transaction was successfull
+   *
+   * @return If the transaction was successfull
    */
   boolean actionSelling(
           @NotNull Player seller,
           @NotNull InventoryWrapper sellerInventory,
-          @NotNull AbstractEconomy eco,
+          @NotNull EconomyProvider eco,
           @NotNull Info info,
           @NotNull Shop shop,
           int amount);
@@ -125,15 +127,6 @@ public interface ShopManager {
    */
   @NotNull
   String format(double d, @NotNull Shop shop);
-
-  /**
-   * @return Returns the Map. Info contains what their last question etc was.
-   *
-   * @deprecated Use getInteractiveManager() instead.
-   */
-  @Deprecated(forRemoval = true)
-  @NotNull
-  Map<UUID, Info> getActions();
 
   /**
    * Returns all shops in the whole database, include unloaded.
@@ -349,7 +342,7 @@ public interface ShopManager {
   /**
    * Checks if player reached the limit of shops
    *
-   * @param p The player to check
+   * @param p       The player to check
    * @param message Should a message be sent to the player if the limit is reached
    *
    * @return True if they're reached the limit.

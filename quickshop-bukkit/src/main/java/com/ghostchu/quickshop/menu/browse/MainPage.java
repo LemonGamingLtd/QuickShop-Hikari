@@ -18,7 +18,7 @@ package com.ghostchu.quickshop.menu.browse;
  */
 
 import com.ghostchu.quickshop.QuickShop;
-import com.ghostchu.quickshop.api.economy.AbstractEconomy;
+import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.util.Util;
@@ -37,6 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -109,27 +110,29 @@ public class MainPage {
         if(maxPages > 1) {
 
           playerPage.addIcon(id, new IconBuilder(QuickShop.getInstance().stack().of("RED_WOOL", 1)
-                                                             .display(get(id, "gui.shared.previous-page"))
-                                                             .lore(List.of(get(id, "history.shop.current-page", page))))
-                                             .withActions(new DataAction(staffPageID, prev), new SwitchPageAction(menuName, menuPage))
-                                             .withSlot(3)
-                                             .build());
+                                                         .display(get(id, "gui.shared.previous-page"))
+                                                         .lore(List.of(get(id, "history.shop.current-page", page))))
+                  .withActions(new DataAction(staffPageID, prev), new SwitchPageAction(menuName, menuPage))
+                  .withSlot(3)
+                  .build());
 
           playerPage.addIcon(id, new IconBuilder(QuickShop.getInstance().stack().of("GREEN_WOOL", 1)
-                                                             .display(get(id, "gui.shared.next-page"))
-                                                             .lore(List.of(get(id, "history.shop.current-page", page))))
-                                             .withActions(new DataAction(staffPageID, next), new SwitchPageAction(menuName, menuPage))
-                                             .withSlot(5)
-                                             .build());
+                                                         .display(get(id, "gui.shared.next-page"))
+                                                         .lore(List.of(get(id, "history.shop.current-page", page))))
+                  .withActions(new DataAction(staffPageID, next), new SwitchPageAction(menuName, menuPage))
+                  .withSlot(5)
+                  .build());
         }
 
         playerPage.addIcon(id, new IconBuilder(QuickShop.getInstance().stack().of("BOOK", 1)
-                                                           .display(get(id, "history.shop.current-page", page)))
-                                           .withSlot(4)
-                                           .build());
+                                                       .display(get(id, "history.shop.current-page", page)))
+                .withSlot(4)
+                .build());
 
         int i = 0;
         for(final Shop shop : shops) {
+
+          System.out.println("Menu add: id: " + shop.getShopId() + " slot: " + offset + (i - start) + "i: " + i);
 
           if(i < start) {
 
@@ -150,18 +153,19 @@ public class MainPage {
             ownerProfile.setUuid(owner.getUniqueId());
           }
 
-          final AbstractEconomy eco = QuickShop.getInstance().getEconomy();
-          final AbstractItemStack<ItemStack> stack = new BukkitItemStack().of(shop.getItem().getType().getKey().toString(), shop.getShopStackingAmount())
+          final EconomyProvider eco = QuickShop.getInstance().getEconomyManager().provider();
+          final AbstractItemStack<ItemStack> stack = new BukkitItemStack().of(shop.getItem().getType().key().asString(), shop.getShopStackingAmount())
                   .display(Util.getItemStackName(shop.getItem()))
                   .lore(getList(id, iconLore,
                                 shop.getOwner().getDisplay(),
                                 location,
                                 shop.getShopType(),
-                                eco.format(shop.getPrice(), shop.getLocation().getWorld(), shop.getCurrency()),
+                                eco.format(BigDecimal.valueOf(shop.getPrice()), shop.getLocation().getWorld().getName(), shop.getCurrency()),
                                 shop.getRemainingStock()));
 
           playerPage.addIcon(id, new IconBuilder(stack).withSlot(offset + (i - start)).build());
 
+          System.out.println("Slots: " + playerPage.getIcons(id).size());
           i++;
         }
       }

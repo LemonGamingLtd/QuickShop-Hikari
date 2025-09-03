@@ -11,8 +11,7 @@ import com.ghostchu.quickshop.api.QuickShopProvider;
 import com.ghostchu.quickshop.api.RankLimiter;
 import com.ghostchu.quickshop.api.command.CommandManager;
 import com.ghostchu.quickshop.api.database.DatabaseHelper;
-import com.ghostchu.quickshop.api.economy.AbstractEconomy;
-import com.ghostchu.quickshop.api.economy.EconomyType;
+import com.ghostchu.quickshop.api.economy.EconomyManager;
 import com.ghostchu.quickshop.api.event.QSConfigurationReloadEvent;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapperManager;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapperRegistry;
@@ -35,8 +34,8 @@ import com.ghostchu.quickshop.common.util.QuickExecutor;
 import com.ghostchu.quickshop.database.DatabaseIOUtil;
 import com.ghostchu.quickshop.database.HikariUtil;
 import com.ghostchu.quickshop.database.SimpleDatabaseHelperV2;
-import com.ghostchu.quickshop.economy.impl.Economy_Vault;
-import com.ghostchu.quickshop.economy.impl.Economy_VaultUnlocked;
+import com.ghostchu.quickshop.economy.EconomyLoader;
+import com.ghostchu.quickshop.economy.QSEconomyManager;
 import com.ghostchu.quickshop.listener.BlockListener;
 import com.ghostchu.quickshop.listener.BungeeListener;
 import com.ghostchu.quickshop.listener.ChatListener;
@@ -64,7 +63,6 @@ import com.ghostchu.quickshop.registry.builtin.itemexpression.SimpleItemExpressi
 import com.ghostchu.quickshop.registry.builtin.itemexpression.handlers.SimpleEnchantmentExpressionHandler;
 import com.ghostchu.quickshop.registry.builtin.itemexpression.handlers.SimpleItemReferenceExpressionHandler;
 import com.ghostchu.quickshop.registry.builtin.itemexpression.handlers.SimpleMaterialExpressionHandler;
-import com.ghostchu.quickshop.shop.InteractionController;
 import com.ghostchu.quickshop.shop.ShopLoader;
 import com.ghostchu.quickshop.shop.ShopPurger;
 import com.ghostchu.quickshop.shop.SimpleShopItemBlackList;
@@ -74,6 +72,7 @@ import com.ghostchu.quickshop.shop.controlpanel.SimpleShopControlPanel;
 import com.ghostchu.quickshop.shop.controlpanel.SimpleShopControlPanelManager;
 import com.ghostchu.quickshop.shop.display.AbstractDisplayItem;
 import com.ghostchu.quickshop.shop.display.virtual.VirtualDisplayItemManager;
+import com.ghostchu.quickshop.shop.interaction.QuickShopInteractionManager;
 import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapperManager;
 import com.ghostchu.quickshop.shop.sign.SignHooker;
 import com.ghostchu.quickshop.util.FastPlayerFinder;
@@ -141,7 +140,6 @@ import net.tnemc.menu.paper.PaperPlayer;
 import net.tnemc.menu.paper.listener.PaperChatListener;
 import net.tnemc.menu.paper.listener.PaperInventoryClickListener;
 import net.tnemc.menu.paper.listener.PaperInventoryCloseListener;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -150,7 +148,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.h2.Driver;
 import org.jetbrains.annotations.ApiStatus;
@@ -212,13 +209,13 @@ public class QuickShop implements QuickShopAPI, Reloadable {
   private final Platform platform;
   @Getter
   private final EconomyLoader economyLoader = new EconomyLoader(this);
+  private final EconomyManager economyManager = new QSEconomyManager();
   @Getter
   private final PasteManager pasteManager = new PasteManager();
-
-  private FoliaLib folia;
   protected MenuHandler menuHandler;
   protected HelperMethods helperMethods;
-
+  private QuickShopInteractionManager interactionManager;
+  private FoliaLib folia;
   /* Public QuickShop API End */
   private GameVersion gameVersion;
   private volatile SimpleDatabaseHelperV2 databaseHelper;
@@ -250,11 +247,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
   private boolean invalidProvider = false;
   @Getter
   private int displayItemCheckTicks;
-  /**
-   * The economy we hook into for transactions
-   */
-  @Getter
-  private AbstractEconomy economy;
   @Nullable
   @Getter
   private LogWatcher logWatcher;
@@ -309,8 +301,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
   @Getter
   private ShopPurger shopPurger;
   private int loggingLocation = 0;
-  @Getter
-  private InteractionController interactionController;
   @Getter
   private volatile SQLManager sqlManager;
   @Getter
@@ -375,6 +365,15 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     return permissionManager;
   }
 
+  public static FoliaLib folia() {
+
+    return instance.folia;
+  }
+
+  public static MenuHandler menu() {
+
+    return instance.menuHandler;
+  }
 
   /**
    * Early than onEnable, make sure instance was loaded in first time.
@@ -536,7 +535,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
       this.platform.updateTranslationMappingSection(this.translationMapping);
     }
 
-    if(StringUtils.isEmpty(this.currency)) {
+    if(CommonUtil.isEmptyString(this.currency)) {
       this.currency = null;
     }
     if(this.getConfig().getBoolean("logging.enable")) {
@@ -601,13 +600,27 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     return this.itemMatcher;
   }
 
-  @SuppressWarnings("removal")
+  /**
+   * Retrieves the EconomyManager instance that manages all economies associated with their unique
+   * identifiers.
+   *
+   * @return The EconomyManager instance.
+   */
   @Override
-  @ApiStatus.Obsolete
-  @Deprecated(forRemoval = true)
-  public Map<String, Integer> getLimits() {
+  public EconomyManager getEconomyManager() {
 
-    return this.rankLimiter.getLimits();
+    return economyManager;
+  }
+
+  /**
+   * Retrieves the InteractionManager associated with this QuickShopProvider.
+   *
+   * @return The InteractionManager that manages InteractionBehaviors and InteractionTypes.
+   */
+  @Override
+  public QuickShopInteractionManager getInteractionManager() {
+
+    return interactionManager;
   }
 
   @Override
@@ -631,15 +644,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
   public boolean isValidDisplayProvider() {
 
     return !invalidProvider;
-  }
-
-  @SuppressWarnings("removal")
-  @Override
-  @Deprecated(forRemoval = true)
-  @ApiStatus.Obsolete
-  public boolean isLimit() {
-
-    return this.rankLimiter.isLimit();
   }
 
   @Override
@@ -791,7 +795,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     shopLoader.loadShops();
     QuickExecutor.getCommonExecutor().submit(this::bakeShopsOwnerCache);
     logger.info("Registering listeners...");
-    this.interactionController = new InteractionController(this);
+    this.interactionManager = new QuickShopInteractionManager(this);
     // Register events
     // Listeners (These don't)
     registerListeners();
@@ -826,7 +830,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     itemExpressionRegistry.registerHandlerSafely(new SimpleItemReferenceExpressionHandler(this));
   }
 
-
   private void loadErrorReporter() {
 
     try {
@@ -856,7 +859,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
 
   private void loadVirtualDisplayItem() {
 
-    if(!invalidProvider) {
+    if(!invalidProvider && this.display) {
       //VirtualItem support
       if(AbstractDisplayItem.getNowUsing() == DisplayType.VIRTUALITEM) {
         logger.info("Using Virtual Displays. Attempting to initialize packet factory...");
@@ -1230,11 +1233,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     }
   }
 
-  public static FoliaLib folia() {
-
-    return instance.folia;
-  }
-
   @NotNull
   public File getDataFolder() {
 
@@ -1271,6 +1269,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
   }
 
   public MenuPlayer createMenuPlayer(final OfflinePlayer player) {
+
     if(this.folia.isFolia()) {
       return new FoliaPlayer(player, this.javaPlugin);
     } else if(this.folia.isPaper()) {
@@ -1291,11 +1290,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     return javaPlugin.getFork();
   }
 
-  public static MenuHandler menu() {
-
-    return instance.menuHandler;
-  }
-
   /**
    * Return the QuickShop fork name.
    *
@@ -1307,165 +1301,25 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     return javaPlugin.getVersion();
   }
 
-  public enum DatabaseDriverType {
-    MYSQL,
-    H2
-  }
-
   public String getMainCommand() {
 
     final List<String> customCommands = getConfig().getStringList("custom-commands");
-    return customCommands.isEmpty() ? "quickshop" : customCommands.getFirst();
+    return customCommands.isEmpty()? "quickshop" : customCommands.getFirst();
   }
 
   public String getCommandPrefix(final String commandLabel) {
 
     final ConfigurationSection section = getConfig().getConfigurationSection("custom-subcommands");
 
-    if (section == null) return commandLabel;
+    if(section == null) return commandLabel;
     final String prefix = section.getString(commandLabel);
 
-    if (prefix == null || prefix.isEmpty()) return commandLabel;
+    if(prefix == null || prefix.isEmpty()) return commandLabel;
     return prefix;
   }
 
-  public static class EconomyLoader {
-
-    private final QuickShop parent;
-
-    public EconomyLoader(final QuickShop parent) {
-
-      this.parent = parent;
-    }
-
-    /**
-     * Tries to load the economy and its core. If this fails, it will try to use vault. If that
-     * fails, it will return false.
-     *
-     * @return true if successful, false if the core is invalid or is not found, and vault cannot be
-     * used.
-     */
-
-    public boolean load() {
-
-      try(final PerfMonitor ignored = new PerfMonitor("Loading Economy Bridge")) {
-        return setupEconomy();
-      } catch(final Exception e) {
-        if(parent.sentryErrorReporter != null) {
-          parent.sentryErrorReporter.ignoreThrow();
-        }
-        parent.logger().error("Something went wrong while trying to load the economy system!");
-        parent.logger().error("QuickShop was unable to hook into an economy system (Couldn't find Vault or Reserve)!");
-        parent.logger().error("QuickShop can NOT enable properly!");
-        parent.setupBootError(BuiltInSolution.econError(), false);
-        parent.logger().error("Plugin Listeners have been disabled. Please fix this economy issue.", e);
-        return false;
-      }
-    }
-
-    private boolean setupEconomy() throws Exception {
-
-      AbstractEconomy abstractEconomy = switch(EconomyType.fromID(parent.getConfig().getInt("economy-type"))) {
-        case VAULT -> loadVaultAbstract();
-        default -> null;
-      };
-      abstractEconomy = ServiceInjector.getInjectedService(AbstractEconomy.class, abstractEconomy);
-      if(abstractEconomy == null) {
-        Log.debug("No economy bridge found.");
-        return false;
-      }
-      if(!abstractEconomy.isValid()) {
-        parent.setupBootError(BuiltInSolution.econError(), false);
-        return false;
-      }
-      parent.logger().info("Selected economy bridge: {}", abstractEconomy.getName());
-      parent.economy = abstractEconomy;
-      return true;
-    }
-
-    /**
-     * Used to load Vault or VaultUnlocked depending on which is loaded.
-     */
-    @Nullable
-    private AbstractEconomy loadVaultAbstract() throws Exception {
-
-      if(vaultUnlockedPresent()) {
-
-        final RegisteredServiceProvider<net.milkbowl.vault2.economy.Economy> economyProvider;
-        try {
-
-          economyProvider = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault2.economy.Economy.class);
-
-          if(economyProvider == null) {
-
-            return loadVault();
-          }
-
-        } catch(final Exception ignore) {
-
-          return loadVault();
-        }
-
-        return loadVaultUnlocked();
-
-      } else {
-
-        return loadVault();
-      }
-    }
-
-    @Nullable
-    private AbstractEconomy loadVaultUnlocked() {
-
-      return new Economy_VaultUnlocked(parent);
-    }
-
-    // Vault may create exception, we need catch it.
-    @SuppressWarnings("RedundantThrows")
-    @Nullable
-    private AbstractEconomy loadVault() throws Exception {
-
-      final Economy_Vault vault = new Economy_Vault(parent);
-      final boolean taxEnabled = parent.getConfig().getDouble("tax", 0.0d) > 0;
-      final String taxAccount = parent.getConfig().getString("tax-account", "tax");
-      if(!vault.isValid()) {
-        return null;
-      }
-      if(!taxEnabled) {
-        return vault;
-      }
-      if(StringUtils.isEmpty(taxAccount)) {
-        return vault;
-      }
-      final OfflinePlayer tax;
-      if(CommonUtil.isUUID(taxAccount)) {
-        tax = Bukkit.getOfflinePlayer(UUID.fromString(taxAccount));
-      } else {
-        tax = Bukkit.getOfflinePlayer(taxAccount);
-      }
-      if(!Objects.requireNonNull(vault.getVault()).hasAccount(tax)) {
-        Log.debug("Tax account doesn't exists: " + tax);
-        parent.logger().warn("QuickShop detected that no tax account exists and will try to create one. If you see any errors, please change the tax-account name in the config.yml to that of the Server owner.");
-        if(vault.getVault().createPlayerAccount(tax)) {
-          parent.logger().info("Tax account created.");
-        } else {
-          parent.logger().warn("Cannot create tax-account, please change the tax-account name in the config.yml to that of the server owner");
-        }
-        if(!vault.getVault().hasAccount(tax)) {
-          parent.logger().warn("Player for the Tax-account has never played on this server before and we couldn't create an account. This may cause server lag or economy errors, therefore changing the name is recommended. You may ignore this warning if it doesn't cause any issues.");
-        }
-      }
-      return vault;
-    }
-
-    private boolean vaultUnlockedPresent() {
-      final Plugin vault = parent.javaPlugin.getServer().getPluginManager().getPlugin("Vault");
-      return vault != null && vault.getDescription().getVersion().startsWith("2");
-    }
-
-    private boolean vaultPresent() {
-      final Plugin vault = parent.javaPlugin.getServer().getPluginManager().getPlugin("Vault");
-      return vault != null && vault.getDescription().getVersion().startsWith("1");
-    }
+  public enum DatabaseDriverType {
+    MYSQL,
+    H2
   }
 }

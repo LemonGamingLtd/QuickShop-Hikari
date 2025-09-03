@@ -2,6 +2,7 @@ package com.ghostchu.quickshop.api;
 
 import com.ghostchu.quickshop.api.command.CommandManager;
 import com.ghostchu.quickshop.api.database.DatabaseHelper;
+import com.ghostchu.quickshop.api.economy.EconomyManager;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapperRegistry;
 import com.ghostchu.quickshop.api.localization.text.TextManager;
 import com.ghostchu.quickshop.api.registry.RegistryManager;
@@ -10,14 +11,12 @@ import com.ghostchu.quickshop.api.shop.PlayerFinder;
 import com.ghostchu.quickshop.api.shop.ShopControlPanelManager;
 import com.ghostchu.quickshop.api.shop.ShopItemBlackList;
 import com.ghostchu.quickshop.api.shop.ShopManager;
+import com.ghostchu.quickshop.api.shop.interaction.InteractionManager;
 import com.vdurmont.semver4j.Semver;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 /**
  * The unique entry point to allow you to access most features of QuickShop
@@ -41,7 +40,6 @@ public interface QuickShopAPI {
     }
     return provider.getPlugin();
   }
-
 
   /**
    * Getting command manager that allow addon direct access QuickShop sub-command system
@@ -80,15 +78,12 @@ public interface QuickShopAPI {
   ItemMatcher getItemMatcher();
 
   /**
-   * Getting the mapping of permission to shop amounts
+   * Retrieves the EconomyManager instance that manages all economies associated with their unique
+   * identifiers.
    *
-   * @return Permissions <-> Shop Amounts mapping
-   *
-   * @deprecated Replaced by RankLimiter
+   * @return The EconomyManager instance.
    */
-  @ApiStatus.Obsolete
-  @Deprecated(forRemoval = true)
-  Map<String, Integer> getLimits();
+  EconomyManager getEconomyManager();
 
   /**
    * Getting the control panel manager
@@ -96,6 +91,13 @@ public interface QuickShopAPI {
    * @return Shop control panel manager
    */
   ShopControlPanelManager getShopControlPanelManager();
+
+  /**
+   * Retrieves the InteractionManager associated with this QuickShopProvider.
+   *
+   * @return The InteractionManager that manages InteractionBehaviors and InteractionTypes.
+   */
+  InteractionManager getInteractionManager();
 
   /**
    * Getting Shop Manager which managing most of shops
@@ -124,17 +126,6 @@ public interface QuickShopAPI {
    * @return Display item enabled
    */
   boolean isDisplayEnabled();
-
-  /**
-   * Getting shop limit system status false if limit system is disabled
-   *
-   * @return Limit enabled
-   *
-   * @deprecated Replaced by RankLimiter
-   */
-  @ApiStatus.Obsolete
-  @Deprecated(forRemoval = true)
-  boolean isLimit();
 
   RankLimiter getRankLimiter();
 
