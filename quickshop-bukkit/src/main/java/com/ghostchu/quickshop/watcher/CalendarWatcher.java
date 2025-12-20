@@ -25,6 +25,7 @@ public class CalendarWatcher implements Runnable {
   private final YamlConfiguration configuration;
   private final QuickShop plugin;
   private WrappedTask task;
+  private volatile boolean stopped = false;
 
   public CalendarWatcher(final QuickShop plugin) {
 
@@ -45,8 +46,13 @@ public class CalendarWatcher implements Runnable {
   @Override
   public void run() {
 
+    if(stopped) {
+      return;
+    }
     final CalendarEvent.CalendarTriggerType type = getAndUpdate();
-    Util.mainThreadRun(()->new CalendarEvent(type).callEvent());
+    if(!stopped) {
+      Util.mainThreadRun(()->new CalendarEvent(type).callEvent());
+    }
   }
 
   public CalendarEvent.CalendarTriggerType getAndUpdate() {
@@ -124,6 +130,7 @@ public class CalendarWatcher implements Runnable {
 
   public void stop() {
 
+    stopped = true;
     save();
     try {
       if(task != null && !task.isCancelled()) {
