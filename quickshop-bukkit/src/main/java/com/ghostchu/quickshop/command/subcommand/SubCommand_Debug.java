@@ -134,6 +134,10 @@ public class SubCommand_Debug implements CommandHandler<CommandSender> {
     if(!(sender instanceof Player player)) {
       return;
     }
+    if(player.getInventory().getItemInMainHand().getType().isAir()) {
+        plugin.text().of(sender, "no-anythings-in-your-hand").send();
+        return;
+    }
     final String hand = player.getInventory().getItemInMainHand().getItemMeta().getAsString();
     plugin.text().of(sender, "debug.item-info-hand-as-string", hand, Hashing.crc32().hashString(hand, StandardCharsets.UTF_8).toString()).send();
     final Shop shop = getLookingShop(sender);
@@ -153,7 +157,6 @@ public class SubCommand_Debug implements CommandHandler<CommandSender> {
     hikariDataSource.setMaximumPoolSize(size);
     hikariDataSource.setMinimumIdle(size);
     plugin.text().of(sender, "debug.hikari-cp-size-tweak", size).send();
-    ;
   }
 
   private void handleDbConnectionTest(final CommandSender sender, final List<String> subParams) {
@@ -164,7 +167,6 @@ public class SubCommand_Debug implements CommandHandler<CommandSender> {
         try(Connection connection = plugin.getSqlManager().getConnection()) {
           if(connection.isValid(1000)) {
             plugin.text().of(sender, "debug.hikari-cp-working").send();
-            ;
           } else {
             plugin.text().of(sender, "debug.hikari-cp-not-working");
           }
