@@ -175,6 +175,9 @@ shop-blocks:
   - ENDER_CHEST
   - BARREL
 
+blocked-container-pdc-keys:
+  - "lgautocontainers:sell_chest"
+
 shop:
 
   #The components to use for the control panel if not set to the GUI-based control panel

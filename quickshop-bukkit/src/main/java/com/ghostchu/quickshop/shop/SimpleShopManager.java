@@ -391,6 +391,10 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
       MsgUtil.sendDirectMessage(qUser, Component.text("Error: Economy system not loaded, type /quickshop main command to get details.").color(NamedTextColor.RED));
       return true;
     }
+    if(Util.hasBlockedPdcKey(info.getLocation().getBlock())) {
+      plugin.text().of(qUser, "blocked-container-type").send();
+      return true;
+    }
     if(!Util.canBeShop(info.getLocation().getBlock())) {
       plugin.text().of(qUser, "chest-was-removed").send();
       return true;
@@ -631,6 +635,10 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
 
     // Check if player has reached the max shop limit
     if(isReachedLimit(shop.getOwner(), true)) {
+      return;
+    }
+    if(Util.hasBlockedPdcKey(shop.getLocation().getBlock())) {
+      plugin.text().of(p, "blocked-container-type").send();
       return;
     }
     // Check if target block is allowed shop-block
