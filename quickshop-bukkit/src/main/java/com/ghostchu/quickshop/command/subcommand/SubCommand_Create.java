@@ -70,13 +70,6 @@ public class SubCommand_Create implements CommandHandler<Player> {
 
     while(bIt.hasNext()) {
       final Block b = bIt.next();
-      if(Util.hasBlockedPdcKey(b)) {
-        plugin.text().of(sender, "blocked-container-type").send();
-        return;
-      }
-      if(!Util.canBeShop(b)) {
-        continue;
-      }
       if(!Util.canBeShop(b) || !ShopUtil.allowed(b, item)) {
         continue;
       }

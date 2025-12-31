@@ -39,10 +39,6 @@ public class SubCommand_SuperCreate implements CommandHandler<Player> {
     while(bIt.hasNext()) {
       final Block b = bIt.next();
 
-      if(Util.hasBlockedPdcKey(b)) {
-        plugin.text().of(sender, "blocked-container-type").send();
-        return;
-      }
       if(!Util.canBeShop(b)) {
         continue;
       }

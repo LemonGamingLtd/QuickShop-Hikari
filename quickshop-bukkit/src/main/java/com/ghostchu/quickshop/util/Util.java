@@ -162,7 +162,6 @@ public class Util {
       Log.debug("Block is null");
       return false; // This shouldn't happen because we have checked action type.
     }
-    final Block shopBlock = block;
     if(player.getGameMode() != GameMode.SURVIVAL) {
       Log.debug("Not in survival mode");
       return false; // Only survival :)
@@ -173,12 +172,7 @@ public class Util {
       Log.debug("Invalid trade item: air");
       return false; // Air cannot be used for trade
     }
-    if(hasBlockedPdcKey(shopBlock)) {
-      Log.debug("Invalid shop block - blocked container type");
-      plugin.text().of(player, "blocked-container-type").send();
-      return false;
-    }
-    if(!Util.canBeShop(shopBlock)) {
+    if(!Util.canBeShop(block)) {
       Log.debug("Invalid shop block");
       return false;
     }
@@ -204,7 +198,7 @@ public class Util {
       return false;
     }
     // Double chest creation permission check
-    if(Util.isDoubleChest(shopBlock.getBlockData()) &&
+    if(Util.isDoubleChest(block.getBlockData()) &&
        !plugin.perm().hasPermission(player, "quickshop.create.double")) {
       plugin.text().of(player, "no-double-chests").send();
       return false;
@@ -218,13 +212,13 @@ public class Util {
       return false;
     }
     // Check if had enderchest shop creation permission
-    if(shopBlock.getType() == Material.ENDER_CHEST
+    if(block.getType() == Material.ENDER_CHEST
        && !plugin.perm().hasPermission(player, "quickshop.create.enderchest")) {
       Log.debug("Invalid permission for enderchest");
       return false;
     }
     // Check if block is a wall sign
-    if(Util.isWallSign(shopBlock.getType())) {
+    if(Util.isWallSign(block.getType())) {
       Log.debug("Block is wallsign");
       return false;
     }
@@ -232,31 +226,31 @@ public class Util {
     final Block last;
     if(Util.getVerticalFacing().contains(blockFace)) {
 
-      last = shopBlock.getRelative(blockFace);
+      last = block.getRelative(blockFace);
     } else {
 
       final Location playerLocation = player.getLocation();
-      final double x = playerLocation.getX() - shopBlock.getX();
-      final double z = playerLocation.getZ() - shopBlock.getZ();
+      final double x = playerLocation.getX() - block.getX();
+      final double z = playerLocation.getZ() - block.getZ();
       if(Math.abs(x) > Math.abs(z)) {
         if(x > 0) {
-          last = shopBlock.getRelative(BlockFace.EAST);
+          last = block.getRelative(BlockFace.EAST);
         } else {
-          last = shopBlock.getRelative(BlockFace.WEST);
+          last = block.getRelative(BlockFace.WEST);
         }
       } else {
         if(z > 0) {
-          last = shopBlock.getRelative(BlockFace.SOUTH);
+          last = block.getRelative(BlockFace.SOUTH);
         } else {
-          last = shopBlock.getRelative(BlockFace.NORTH);
+          last = block.getRelative(BlockFace.NORTH);
         }
       }
     }
 
     // Send creation menu.
-    final SimpleInfo info = new SimpleInfo(shopBlock.getLocation(), action, stack, last, false);
+    final SimpleInfo info = new SimpleInfo(block.getLocation(), action, stack, last, false);
 
-    final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, qUser, shopBlock.getLocation());
+    final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, qUser, block.getLocation());
 
     if(event.callCancellableEvent()) {
 
@@ -297,52 +291,7 @@ public class Util {
       }
       return false;
     }
-    if(hasBlockedPdcKey(b)) {
-      if(Util.isDevMode()) {
-        Log.debug(b.getType() + " has blocked PDC key, cannot be a shop");
-      }
-      return false;
-    }
     return true;
-  }
-
-  /**
-   * Checks if a block has any of the blocked PersistentDataContainer keys.
-   * This is used to prevent shop creation on special containers
-   * (e.g. Sellchests) which can cause duplication exploits.
-   *
-   * @param block The block to check
-   *
-   * @return True if the block has a blocked PDC key, false otherwise
-   */
-  public static boolean hasBlockedPdcKey(@NotNull final Block block) {
-
-    final BlockState bs = PaperLib.getBlockState(block, false).getState();
-    if(!(bs instanceof org.bukkit.block.TileState tileState)) {
-      return false;
-    }
-    final org.bukkit.persistence.PersistentDataContainer pdc = tileState.getPersistentDataContainer();
-    final List<String> blockedKeys = plugin.getConfig().getStringList("blocked-container-pdc-keys");
-    for(final String keyString : blockedKeys) {
-      if(keyString == null || keyString.isEmpty()) {
-        continue;
-      }
-      final String[] parts = keyString.split(":", 2);
-      if(parts.length != 2) {
-        Log.debug("Invalid blocked PDC key format: " + keyString + " (expected namespace:key)");
-        continue;
-      }
-      try {
-        final org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(parts[0].toLowerCase(Locale.ROOT), parts[1].toLowerCase(Locale.ROOT));
-        if(pdc.has(key)) {
-          Log.debug("Block has blocked PDC key: " + keyString);
-          return true;
-        }
-      } catch(final IllegalArgumentException e) {
-        Log.debug("Invalid namespaced key: " + keyString + " - " + e.getMessage());
-      }
-    }
-    return false;
   }
 
   public static boolean isBlacklistWorld(@NotNull final World world) {
