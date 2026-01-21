@@ -6,6 +6,7 @@ import com.ghostchu.quickshop.compatibility.matcherplus.matchers.ItemCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.AdvancedItemsCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.BreweryXCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.CrazyCratesCheck;
+import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.DWandsCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.ExcellentCratesCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.PyroFishingCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SilkSpawnerCheck;
@@ -44,6 +45,11 @@ public final class Main extends CompatibilityModule implements Listener {
     if(Bukkit.getPluginManager().isPluginEnabled("ExcellentCrates")) {
 
       checks.put("excellentcrates", new ExcellentCratesCheck());
+    }
+
+    if(Bukkit.getPluginManager().isPluginEnabled("DWands")) {
+
+      checks.put("dwands", new DWandsCheck());
     }
   }
 
