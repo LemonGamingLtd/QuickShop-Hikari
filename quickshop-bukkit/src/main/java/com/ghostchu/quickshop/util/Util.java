@@ -19,7 +19,6 @@ import com.ghostchu.quickshop.obj.QUserImpl;
 import com.ghostchu.quickshop.shop.SimpleInfo;
 import com.ghostchu.quickshop.shop.display.AbstractDisplayItem;
 import com.ghostchu.quickshop.util.logger.Log;
-import io.papermc.lib.PaperLib;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -72,7 +71,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -86,6 +84,8 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.ghostchu.quickshop.menu.shared.QuickShopPage.get;
 
 public class Util {
 
@@ -169,6 +169,12 @@ public class Util {
     }
 
     final ItemStack stack = item.clone();
+
+    final int maxSize = Util.getItemMaxStackSize(stack.getType());
+    if(stack.getAmount() > maxSize) {
+      stack.setAmount(maxSize);
+    }
+
     if(stack.getType().isAir()) {
       Log.debug("Invalid trade item: air");
       return false; // Air cannot be used for trade
@@ -289,7 +295,7 @@ public class Util {
     if(!isShoppables(b.getType())) {
       return false;
     }
-    final BlockState bs = PaperLib.getBlockState(b, false).getState();
+    final BlockState bs = b.getState(false);
     final boolean container = bs instanceof InventoryHolder;
     if(!container) {
       if(Util.isDevMode()) {
