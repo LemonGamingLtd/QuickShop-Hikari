@@ -21,7 +21,6 @@ public final class Main extends CompatibilityModule implements Listener {
 
   protected final Map<String, ItemCheck> checks = new HashMap<>();
 
-
   @Override
   public void init() {
 

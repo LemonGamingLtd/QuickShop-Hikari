@@ -68,6 +68,10 @@
             <id>nightexpress-releases</id>
             <url>https://repo.nightexpressdev.com/releases</url>
         </repository>
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.io/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -116,7 +120,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>su.nightexpress.nightcore</groupId>
             <artifactId>main</artifactId>
@@ -256,6 +259,12 @@
             <groupId>xyz.xenondevs.nova</groupId>
             <artifactId>nova-api</artifactId>
             <version>0.18</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.tr7zw</groupId>
+            <artifactId>item-nbt-api-plugin</artifactId>
+            <version>2.15.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

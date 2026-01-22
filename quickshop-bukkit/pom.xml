@@ -38,6 +38,10 @@
     </build>
     <repositories>
         <repository>
+            <id>tcoded-releases</id>
+            <url>https://repo.tcoded.com/releases</url>
+        </repository>
+        <repository>
             <id>essentials</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
@@ -52,10 +56,6 @@
         <repository>
             <id>CodeMC</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
-        </repository>
-        <repository>
-            <id>tcoded-releases</id>
-            <url>https://repo.tcoded.com/releases</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
