@@ -390,6 +390,8 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     // Reset the BootError status to normal.
     this.bootError = null;
     Util.setPlugin(this);
+    logger.info("Reading the configuration...");
+    initConfiguration();
     logger.info("QuickShop {} - Early boot step - Booting up", javaPlugin.getFork());
     getReloadManager().register(this);
     //BEWARE THESE ONLY RUN ONCE
@@ -398,8 +400,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     if(!runtimeCheck(EnvCheckEntry.Stage.ON_LOAD)) {
       return;
     }
-    logger.info("Reading the configuration...");
-    initConfiguration();
     logger.info("Setting up privacy controller...");
     this.privacyController = new PrivacyController(this);
     logger.info("Setting up QuickShop registry....");
@@ -483,6 +483,8 @@ public class QuickShop implements QuickShopAPI, Reloadable {
       logger.error("Failed to save config.yml from jar, The binary file of QuickShop may be corrupted. Please re-download from our website.");
     }
     javaPlugin.reloadConfig();*/
+
+    javaPlugin.reloadConfig();
 
     /* It will generate a new UUID above updateConfig */
     this.serverUniqueID = UUID.fromString(Objects.requireNonNull(getConfig().getString("server-uuid", String.valueOf(UUID.randomUUID()))));

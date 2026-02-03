@@ -101,6 +101,7 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
 
   public static final String DEFAULT_TYPE = "BUYING";
 
+  protected final Map<UUID, Long> cooldowns = Maps.newConcurrentMap();
   protected final Map<Integer, IShopType> shopTypes = Maps.newConcurrentMap();
   protected final ConcurrentLinkedQueue<Long> inDeletion = new ConcurrentLinkedQueue<>();
 
@@ -205,6 +206,18 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
   public IShopLayoutProvider shopLayoutProvider() {
 
     return shopLayoutProvider;
+  }
+
+  /**
+   * Retrieves a map of cooldown information where the keys represent unique identifiers (UUIDs),
+   * and the values represent the corresponding timestamps indicating when the cooldown expires.
+   *
+   * @return A map mapping UUIDs to their cooldown expiration timestamps in milliseconds.
+   */
+  @Override
+  public Map<UUID, Long> findCooldown() {
+
+    return cooldowns;
   }
 
   /**
@@ -582,7 +595,7 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
     }
     sendPurchaseSuccess(sellerQUser, shop, amount, total, transaction.tax().doubleValue());
     new ShopSuccessPurchaseEvent(shop, sellerQUser, sellerInventory, amount, total, transaction.tax().doubleValue()).callEvent();
-    notifyBought(sellerQUser, shop, amount, stock, transaction.tax().doubleValue(), total);
+    notifyBought(sellerQUser, shop, amount, stock, transaction);
     return true;
   }
 
@@ -1119,16 +1132,18 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
   }
 
 
-  private void notifyBought(@NotNull final QUser seller, @NotNull final Shop shop, final int amount, final int stock, final double tax, final double total) {
+  private void notifyBought(@NotNull final QUser seller, @NotNull final Shop shop, final int amount, final int stock, @NotNull final QSEconomyTransaction transaction) {
 
     Util.asyncThreadRun(()->{
       final String langCode = plugin.text().findRelativeLanguages(shop.getOwner(), true).getLocale();
       final List<Component> sendList = new ArrayList<>();
       Component notify;
+      final double ownerPayment = transaction.ownerPayment().doubleValue();
+      final double tax = transaction.tax().doubleValue();
       if(plugin.getConfig().getBoolean("show-tax")) {
-        notify = plugin.text().of("player-bought-from-your-store-tax", seller, amount * shop.getItem().getAmount(), Util.getItemStackName(shop.getItem()), this.formatter.format(total - tax, shop), this.formatter.format(tax, shop)).forLocale(langCode);
+        notify = plugin.text().of("player-bought-from-your-store-tax", seller, amount * shop.getItem().getAmount(), Util.getItemStackName(shop.getItem()), this.formatter.format(ownerPayment, shop), this.formatter.format(tax, shop)).forLocale(langCode);
       } else {
-        notify = plugin.text().of("player-bought-from-your-store", seller, amount * shop.getItem().getAmount(), Util.getItemStackName(shop.getItem()), this.formatter.format(total - tax, shop)).forLocale(langCode);
+        notify = plugin.text().of("player-bought-from-your-store", seller, amount * shop.getItem().getAmount(), Util.getItemStackName(shop.getItem()), this.formatter.format(ownerPayment, shop)).forLocale(langCode);
       }
       notify = plugin.platform().setItemStackHoverEvent(notify, shop.getItem());
       sendList.add(notify);

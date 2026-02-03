@@ -82,7 +82,7 @@ you-cant-afford-a-new-shop: <red>Musisz mieć {0} aby zrobić nowy sklep.
 success-created-shop: <red>Sklep utworzony.
 shop-creation-cancelled: <red>Tworzenie sklepu anulowane.
 shop-owner-self-trade: <yellow>Handlujesz z własnym sklepem, więc nie będziesz mógł uzyskać żadnych korzyści.
-shop-owner-self-trade-denied: <red>You cannot trade with your own shop.
+shop-owner-self-trade-denied: <red>Nie możesz wymieniać się z własnym sklepem.
 purchase-out-of-space: <red>W tym sklepie zabrakło miejsca, skontaktuj się z właścicielem sklepu lub personelem, aby opróżnić sklep.
 reloading-status:
   success: <green>Przeładowanie zakończone bez żadnych błędów.
@@ -1750,7 +1750,8 @@ history:
       - "<white>Recent <aqua>{17}</aqua> turnover: <yellow>{18}</yellow></white>"
       - "<white>Total turnover: <yellow>{19}</yellow></white>"
     total-unique-purchasers: "<white>Total unique purchasers: <yellow>{0}</yellow></white>"
-    top-n-valuable-customers-entry: "<white>- <yellow>{0}</yellow> <aqua>{1}</aqua></white>"
+    top-n-valuable-customers-entry:
+      - "<white>- <yellow>{0}</yellow> <aqua>{1}</aqua></white>"
     top-n-valuable-customers-title: "<gold>Top {0} valuable customers</gold>"
     no-result: "<white>No result</white>"
 about:
