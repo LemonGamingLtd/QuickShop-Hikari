@@ -40,6 +40,8 @@ public class CommandContainer {
   @NotNull
   private String prefix; // E.g /quickshop <prefix>
   @Nullable
+  private String usage; // E.g /quickshop <prefix> [args] - displayed in help instead of prefix when set
+  @Nullable
   private Function<@NotNull String, @Nullable Component> description; // Will show in the /quickshop help, provide an arg that pass a player locale code
 
   private boolean disabled; //Set command is disabled or not.
@@ -51,6 +53,17 @@ public class CommandContainer {
   private Function<@Nullable CommandSender, @NotNull Component> disableCallback; //Set the callback that should return a text to shown
 
   private Class<?> executorType;
+
+  /**
+   * Gets the usage string displayed in help. Returns usage if set, otherwise prefix.
+   *
+   * @return the usage or prefix
+   */
+  @NotNull
+  public String getHelpUsage() {
+
+    return usage != null ? usage : prefix;
+  }
 
   /**
    * Gets the text should be shown while command was disabled.

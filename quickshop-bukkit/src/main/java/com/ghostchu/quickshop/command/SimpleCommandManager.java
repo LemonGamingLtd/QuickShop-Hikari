@@ -319,6 +319,7 @@ public class SimpleCommandManager implements CommandManager, TabCompleter, Comma
     registerCmd(
             CommandContainer.builder()
                     .prefix("create")
+                    .usage("create [price]")
                     .permission("quickshop.create.cmd")
                     .permission("quickshop.create.sell")
                     .executor(new SubCommand_Create(plugin))
