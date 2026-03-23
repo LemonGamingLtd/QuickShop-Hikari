@@ -1,6 +1,7 @@
 package com.ghostchu.quickshop.compatibility.matcherplus;
 
 import com.ghostchu.quickshop.api.event.general.ShopItemMatchEvent;
+import com.ghostchu.quickshop.api.event.inventory.ShopItemDeliveryEvent;
 import com.ghostchu.quickshop.compatibility.CompatibilityModule;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.ItemCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.AdvancedItemsCheck;
@@ -13,6 +14,7 @@ import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SilkSpawne
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +70,21 @@ public final class Main extends CompatibilityModule implements Listener {
       if(check.applies(event.original()) || check.applies(event.comparison())) {
 
         event.matches(check.matches(event.original(), event.comparison()));
+        return;
+      }
+    }
+  }
+
+  @EventHandler
+  public void onItemDelivery(final ShopItemDeliveryEvent event) {
+
+    final ItemStack item = event.getItem();
+
+    for(final ItemCheck check : checks.values()) {
+
+      if(check.applies(item) && check.requiresUniqueProcessing()) {
+
+        event.setItem(check.prepareForDelivery(item.clone()));
         return;
       }
     }

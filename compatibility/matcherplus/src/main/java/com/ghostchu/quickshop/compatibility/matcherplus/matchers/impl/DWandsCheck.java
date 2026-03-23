@@ -21,10 +21,12 @@ import com.ghostchu.quickshop.compatibility.matcherplus.matchers.ItemCheck;
 import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class DWandsCheck implements ItemCheck {
 
@@ -39,6 +41,39 @@ public class DWandsCheck implements ItemCheck {
       "battery",
       "builder"
   );
+
+  /**
+   * DWands items require unique UUIDs for each wand, so they need unique processing.
+   *
+   * @return true, DWands wands always require unique processing
+   */
+  @Override
+  public boolean requiresUniqueProcessing() {
+    return true;
+  }
+
+  /**
+   * Prepares a DWands wand for delivery by regenerating its unique wand ID.
+   *
+   * @param stack the wand ItemStack to prepare
+   *
+   * @return the wand with a new unique ID
+   */
+  @Override
+  public @NotNull ItemStack prepareForDelivery(final @NotNull ItemStack stack) {
+
+    final String wandType = getWandType(stack);
+    if (wandType == null) {
+      return stack;
+    }
+
+    final NBTItem nbtItem = new NBTItem(stack, true);
+    final String idKey = wandType + "WandId";
+
+    nbtItem.setString(idKey, UUID.randomUUID().toString());
+
+    return nbtItem.getItem();
+  }
 
   /**
    * Check if this check applies to the specified ItemStack.

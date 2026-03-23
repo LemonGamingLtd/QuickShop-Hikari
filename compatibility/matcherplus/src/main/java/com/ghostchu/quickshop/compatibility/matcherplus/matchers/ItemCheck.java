@@ -18,6 +18,7 @@ package com.ghostchu.quickshop.compatibility.matcherplus.matchers;
  */
 
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -46,4 +47,25 @@ public interface ItemCheck {
    * @return true if the two ItemStack objects match, false otherwise
    */
   boolean matches(final @Nullable ItemStack stack, final @Nullable ItemStack compare);
+
+  /**
+   * Checks if items of this type require unique identity processing when being delivered.
+   *
+   * @return true if items need unique processing, false otherwise
+   */
+  default boolean requiresUniqueProcessing() {
+    return false;
+  }
+
+  /**
+   * Prepares an item for delivery to a player. This method is called for each individual item
+   *
+   * @param stack the ItemStack to prepare (will be cloned before calling)
+   *
+   * @return the prepared ItemStack ready for delivery
+   */
+  @NotNull
+  default ItemStack prepareForDelivery(final @NotNull ItemStack stack) {
+    return stack;
+  }
 }
