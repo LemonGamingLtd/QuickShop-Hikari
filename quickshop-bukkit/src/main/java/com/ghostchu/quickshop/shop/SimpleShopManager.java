@@ -735,7 +735,7 @@ public class SimpleShopManager extends AbstractShopManager implements ShopManage
     if(isReachedLimit(shop.getOwner(), true)) {
       return;
     }
-    if(Util.hasBlockedPdcKey(shop.getLocation().getBlock())) {
+    if(Util.hasBlockedPdcKey(shop.bukkitLocation().getBlock())) {
       plugin.text().of(p, "blocked-container-type").send();
       return;
     }
