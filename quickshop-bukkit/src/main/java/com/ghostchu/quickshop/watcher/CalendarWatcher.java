@@ -46,13 +46,11 @@ public class CalendarWatcher implements Runnable {
   @Override
   public void run() {
 
-    if(stopped) {
+    if(!plugin.getJavaPlugin().isEnabled() || stopped) {
       return;
     }
     final CalendarEvent.CalendarTriggerType type = getAndUpdate();
-    if(!stopped) {
-      Util.mainThreadRun(()->new CalendarEvent(type).callEvent());
-    }
+    Util.mainThreadRun(()->new CalendarEvent(type).callEvent());
   }
 
   public CalendarEvent.CalendarTriggerType getAndUpdate() {
@@ -136,8 +134,9 @@ public class CalendarWatcher implements Runnable {
       if(task != null && !task.isCancelled()) {
         task.cancel();
       }
+      task = null;
     } catch(final IllegalStateException ex) {
-      Log.debug("Task already cancelled " + ex.getMessage());
+      Log.debug("Calendar watcher task already cancelled: " + ex.getMessage());
     }
   }
 }

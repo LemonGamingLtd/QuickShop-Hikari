@@ -77,8 +77,8 @@ public class SubCommand_TransferOwnership implements CommandHandler<Player> {
             plugin.text().of(sender, "not-looking-at-shop").send();
             return;
           }
-          if (!targetShop.playerAuthorize(sender.getUniqueId(), BuiltInShopPermission.OWNERSHIP_TRANSFER)
-              && !plugin.perm().hasPermission(sender, "quickshop.transferownership.other")) {
+          if(!targetShop.playerAuthorize(sender.getUniqueId(), BuiltInShopPermission.OWNERSHIP_TRANSFER)
+             && !plugin.perm().hasPermission(sender, "quickshop.transferownership.other")) {
             plugin.text().of(sender, "no-permission").send();
             return;
           }
@@ -98,7 +98,7 @@ public class SubCommand_TransferOwnership implements CommandHandler<Player> {
   @Override
   public @Nullable List<String> onTabComplete(@NotNull final Player sender, @NotNull final String commandLabel, @NotNull final CommandParser parser) {
 
-    final List<String> list = Util.getPlayerList();
+    final List<String> list = Util.getPlayerList(sender);
     list.add("accept");
     list.add("deny");
     return parser.getArgs().size() <= 2? list : Collections.emptyList();
