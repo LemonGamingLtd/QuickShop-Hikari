@@ -38,6 +38,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class BlockListener extends AbstractProtectionListener {
 
+  private static final String OTHER_DESTROY_PERMISSION = "quickshop.other.destroy";
+
   private boolean updateSignWhenInventoryMoving;
 
   public BlockListener(@NotNull final QuickShop plugin) {
@@ -67,7 +69,7 @@ public class BlockListener extends AbstractProtectionListener {
       }
       // If they're either survival or the owner, they can break it
       if(p.getGameMode() == GameMode.CREATIVE
-         && (shop.playerAuthorize(p.getUniqueId(), BuiltInShopPermission.DELETE) || plugin.perm().hasPermission(p, "quickshop.other.destory"))) {
+         && (shop.playerAuthorize(p.getUniqueId(), BuiltInShopPermission.DELETE) || plugin.perm().hasPermission(p, OTHER_DESTROY_PERMISSION))) {
         // Check SuperTool
         if(p.getInventory().getItemInMainHand().getType() == Material.GOLDEN_AXE) {
           if(getPlugin().getConfig().getBoolean("shop.disable-super-tool")) {
@@ -104,7 +106,7 @@ public class BlockListener extends AbstractProtectionListener {
       // (accidents happen)
       if(p.getGameMode() == GameMode.CREATIVE
          && (shop.playerAuthorize(p.getUniqueId(), BuiltInShopPermission.DELETE)
-             || plugin.perm().hasPermission(p, "quickshop.other.destory"))) {
+             || plugin.perm().hasPermission(p, OTHER_DESTROY_PERMISSION))) {
         // Check SuperTool
         if(p.getInventory().getItemInMainHand().getType() == Material.GOLDEN_AXE) {
           if(getPlugin().getConfig().getBoolean("shop.disable-super-tool")) {
@@ -129,6 +131,46 @@ public class BlockListener extends AbstractProtectionListener {
       Log.debug("Player cannot break the shop information sign.");
       e.setCancelled(true);
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+  public void onCancelledBreak(final BlockBreakEvent e) {
+
+    if(!e.isCancelled()) {
+      return;
+    }
+
+    final Player p = e.getPlayer();
+    if(p.getInventory().getItemInMainHand().getType() != Material.GOLDEN_AXE
+       || !plugin.perm().hasPermission(p, OTHER_DESTROY_PERMISSION)) {
+      return;
+    }
+
+    final Shop shop = getShopFromBrokenBlock(e.getBlock());
+    if(shop == null) {
+      return;
+    }
+
+    if(getPlugin().getConfig().getBoolean("shop.disable-super-tool")) {
+      plugin.text().of(p, "supertool-is-disabled").send();
+      return;
+    }
+
+    plugin.text().of(p, "break-shop-use-supertool").send();
+    plugin.logEvent(new ShopRemoveLog(QUserImpl.createFullFilled(p), "BlockBreak(player)", shop.saveToInfoStorage()));
+    plugin.getShopManager().deleteShop(shop);
+  }
+
+  @Nullable
+  private Shop getShopFromBrokenBlock(@NotNull final Block block) {
+
+    if(Util.canBeShop(block)) {
+      return getShopPlayer(block.getLocation(), false);
+    }
+    if(Util.isWallSign(block.getType())) {
+      return getShopNextTo(block.getLocation());
+    }
+    return null;
   }
 
   /**
