@@ -191,10 +191,20 @@ proxy:
   # Force BungeeCord mode.
   force-bungeecord: false
 
-# Currency used when creating shops.
-# Set to "" to use the default currency.
-# Only required for multi-currency setups.
-currency: ""
+# Primary currency used for shop fees (creation, rename, price-change, ongoing).
+#
+# Values:
+#   ""      -> Use the economy default.
+#   auto    -> Pick the best primary automatically:
+#                * "tokens" if LGEnchants is installed
+#                * economy default otherwise
+#   tokens  -> LGEnchants tokens.
+#   lemons  -> DStoreCurrency lemons.
+#   <name>  -> Any currency name your VaultUnlocked economy exposes.
+#
+# Players may still pick a different per-shop currency via /qs currency
+# or `/qs create <price> [currency] [item] [amount]`.
+currency: "auto"
 
 # Logging
 logging:

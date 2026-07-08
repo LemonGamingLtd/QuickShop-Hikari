@@ -21,6 +21,8 @@ import com.ghostchu.quickshop.BuiltInSolution;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.common.util.CommonUtil;
+import com.ghostchu.quickshop.economy.provider.DStoreCurrencyProvider;
+import com.ghostchu.quickshop.economy.provider.LGEnchantsProvider;
 import com.ghostchu.quickshop.economy.provider.VaultProvider;
 import com.ghostchu.quickshop.economy.provider.VaultUnlockedProvider;
 import com.ghostchu.quickshop.util.logger.Log;
@@ -81,15 +83,34 @@ public class EconomyLoader {
       return false;
     }
 
-    final EconomyProvider providerInstance = provider();
+    EconomyProvider providerInstance = provider();
     if(providerInstance == null || !providerInstance.valid()) {
       plugin.setupBootError(BuiltInSolution.econError(), false);
       return false;
     }
 
+    final Plugin dStore = plugin.getJavaPlugin().getServer().getPluginManager().getPlugin("DStoreCurrency");
+    if(dStore != null && dStore.isEnabled()) {
+      final DStoreCurrencyProvider wrapped = new DStoreCurrencyProvider(plugin, providerInstance);
+      providerInstance = wrapped;
+      if(wrapped.isLemonsAvailable()) {
+        plugin.logger().info("DStoreCurrency 'lemons' are available as a secondary currency for shops.");
+      }
+    }
+
+    final Plugin lgEnchants = plugin.getJavaPlugin().getServer().getPluginManager().getPlugin("LGEnchants");
+    if(lgEnchants != null && lgEnchants.isEnabled()) {
+      final LGEnchantsProvider wrapped = new LGEnchantsProvider(plugin, providerInstance);
+      providerInstance = wrapped;
+      if(wrapped.isTokensAvailable()) {
+        plugin.logger().info("LGEnchants 'tokens' are available as a secondary currency for shops.");
+      }
+    }
+
     plugin.getEconomyManager().provider(providerInstance);
     plugin.getEconomyManager().useProvider(providerInstance.name());
     plugin.logger().info("Selected economy bridge: {}", providerInstance.name());
+    plugin.refreshPrimaryCurrency();
     return true;
   }
 

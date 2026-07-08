@@ -27,6 +27,8 @@ public class SimpleInfo implements Info {
   private ItemStack item;
   private Shop shop;
   private String shopData;
+  @Nullable
+  private String preselectedCurrency;
 
   public SimpleInfo(
           @NotNull final Location loc,
@@ -129,6 +131,15 @@ public class SimpleInfo implements Info {
   public boolean isBypassed() {
 
     return bypass;
+  }
+
+  @Nullable
+  public String getPreselectedCurrency() {
+    return preselectedCurrency;
+  }
+
+  public void setPreselectedCurrency(@Nullable final String preselectedCurrency) {
+    this.preselectedCurrency = preselectedCurrency;
   }
 
 }

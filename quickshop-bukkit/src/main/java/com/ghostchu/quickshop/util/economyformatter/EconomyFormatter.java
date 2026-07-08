@@ -15,11 +15,16 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class EconomyFormatter implements Reloadable {
 
   private static final Map<String, String> CURRENCY_SYMBOL_MAPPING = new HashMap<>();
+  private static final String MONEY_COLOR = "§a";
+  private static final String LEMONS_COLOR = "§e";
+  private static final String TOKENS_COLOR = "§6";
+  private static final String COLOR_RESET = "§r";
   private final QuickShop plugin;
   private boolean disableVaultFormat;
   private boolean useDecimalFormat;
@@ -67,7 +72,7 @@ public class EconomyFormatter implements Reloadable {
   public String format(final double n, final boolean internalFormat, @NotNull final World world, @Nullable final String currency) {
 
     if(internalFormat) {
-      return getInternalFormat(n, currency);
+      return colorizeByCurrency(getInternalFormat(n, currency), currency);
     }
 
     Log.debug("Economy Provider null check: " + (plugin.getEconomyManager().provider() == null));
@@ -77,14 +82,14 @@ public class EconomyFormatter implements Reloadable {
       if(CommonUtil.isEmptyString(formatted)) {
         Log.debug(
                 "Use alternate-currency-symbol to formatting, Cause economy plugin returned null");
-        return getInternalFormat(n, currency);
+        return colorizeByCurrency(getInternalFormat(n, currency), currency);
       } else {
-        return formatted;
+        return colorizeByCurrency(formatted, currency);
       }
     } catch(final NumberFormatException e) {
       Log.debug(e.getMessage());
       Log.debug("Use alternate-currency-symbol to formatting, Cause NumberFormatException");
-      return getInternalFormat(n, currency);
+      return colorizeByCurrency(getInternalFormat(n, currency), currency);
     }
   }
 
@@ -100,6 +105,29 @@ public class EconomyFormatter implements Reloadable {
       final String symbol = CURRENCY_SYMBOL_MAPPING.getOrDefault(currency, currency);
       return currencySymbolOnRight? formatted + symbol : symbol + formatted;
     }
+  }
+
+  private @NotNull String colorizeByCurrency(@NotNull final String formatted, @Nullable final String currency) {
+
+    final String color = currencyColor(currency);
+    if(color == null) {
+      return formatted;
+    }
+    return color + formatted + COLOR_RESET;
+  }
+
+  private @Nullable String currencyColor(@Nullable final String currency) {
+
+    if(CommonUtil.isEmptyString(currency) || "money".equalsIgnoreCase(currency)) {
+      return MONEY_COLOR;
+    }
+
+    final String normalized = currency.toLowerCase(Locale.ROOT);
+    return switch(normalized) {
+      case "lemons" -> LEMONS_COLOR;
+      case "tokens", "lgenchants_tokens" -> TOKENS_COLOR;
+      default -> null;
+    };
   }
 
   /**
@@ -122,7 +150,7 @@ public class EconomyFormatter implements Reloadable {
     if(shop != null) {
       return format(n, internalFormat, world, shop.getCurrency());
     } else {
-      return format(n, internalFormat, world, (Shop)null);
+      return format(n, internalFormat, world, (String)null);
     }
   }
 }

@@ -150,7 +150,8 @@ public class ShopUtil {
       }
     }
 
-    final PriceLimiterCheckResult checkResult = limiter.check(user, shop.getItem(), plugin.getCurrency(), price);
+    final String shopCurrency = shop.getCurrency() != null? shop.getCurrency() : plugin.getCurrency();
+    final PriceLimiterCheckResult checkResult = limiter.check(user, shop.getItem(), shopCurrency, price);
 
     switch(checkResult.getStatus()) {
       case PRICE_RESTRICTED -> {
@@ -188,7 +189,7 @@ public class ShopUtil {
               .from(QUserImpl.createFullFilled(user.getBukkitPlayer().get()))
               .amount(BigDecimal.valueOf(fee))
               .world(Objects.requireNonNull(shop.bukkitLocation().getWorld()).getName())
-              .currency(plugin.getCurrency())
+              .currency(shopCurrency)
               .build();
       if(!transaction.completable()) {
         plugin.text().of(user, "you-cant-afford-to-change-price", plugin.getShopManager().format(fee, shop)).send();

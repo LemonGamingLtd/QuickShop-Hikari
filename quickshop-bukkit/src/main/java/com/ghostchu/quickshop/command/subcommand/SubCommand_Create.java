@@ -3,7 +3,9 @@ package com.ghostchu.quickshop.command.subcommand;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.command.CommandHandler;
 import com.ghostchu.quickshop.api.command.CommandParser;
+import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.shop.ShopAction;
+import com.ghostchu.quickshop.economy.provider.LGEnchantsProvider;
 import com.ghostchu.quickshop.shop.SimpleInfo;
 import com.ghostchu.quickshop.util.ShopUtil;
 import com.ghostchu.quickshop.util.Util;
@@ -16,6 +18,7 @@ import org.bukkit.util.BlockIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,46 +36,70 @@ public class SubCommand_Create implements CommandHandler<Player> {
   public void onCommand(@NotNull final Player sender, @NotNull final String commandLabel, @NotNull final CommandParser parser) {
 
     final BlockIterator bIt = new BlockIterator(sender, 10);
-    ItemStack item;
-    if(parser.getArgs().isEmpty()) {
+    final List<String> args = parser.getArgs();
+    if(args.isEmpty()) {
       plugin.text().of(sender, "command.wrong-args").send();
       return;
-    } else if(parser.getArgs().size() == 1) {
+    }
+
+    final String price = args.getFirst();
+
+    String preselectedCurrency = null;
+    int itemArgIdx = -1;
+    int amountArgIdx = -1;
+    if(args.size() >= 2) {
+      final String maybeCurrency = args.get(1);
+      if(isSelectableCurrency(sender, maybeCurrency)) {
+        preselectedCurrency = maybeCurrency;
+        if(args.size() >= 3) {
+          itemArgIdx = 2;
+        }
+        if(args.size() >= 4) {
+          amountArgIdx = 3;
+        }
+      } else if(isBlockedCreateCurrency(maybeCurrency)) {
+        plugin.text().of(sender, "currency-not-exists").send();
+        return;
+      } else {
+        itemArgIdx = 1;
+        if(args.size() >= 3) {
+          amountArgIdx = 2;
+        }
+      }
+    }
+
+    final ItemStack item;
+    if(itemArgIdx < 0) {
       item = sender.getInventory().getItemInMainHand();
       if(item.getType().isAir()) {
         plugin.text().of(sender, "no-anythings-in-your-hand").send();
         return;
       }
     } else {
-      final String matName = parser.getArgs().get(1);
+      final String matName = args.get(itemArgIdx);
       final Material material = matchMaterial(matName);
       if(material == null) {
         plugin.text().of(sender, "item-not-exist", matName).send();
         return;
       }
-      if(parser.getArgs().size() > 2 && plugin.perm().hasPermission(sender, "quickshop.create.stack") && plugin.isAllowStack()) {
+      int amount = 1;
+      if(amountArgIdx > 0 && plugin.perm().hasPermission(sender, "quickshop.create.stack") && plugin.isAllowStack()) {
         try {
-          int amount = Integer.parseInt(parser.getArgs().get(2));
-          if(amount < 1) {
-            amount = 1;
-          }
-
-          final int maxSize = Util.getItemMaxStackSize(material);
-          if(amount > maxSize) {
-            amount = maxSize;
-          }
-
-          item = new ItemStack(material, amount);
-        } catch(final NumberFormatException e) {
-          item = new ItemStack(material, 1);
+          amount = Integer.parseInt(args.get(amountArgIdx));
+        } catch(final NumberFormatException ignored) {
+          amount = 1;
         }
-      } else {
-        item = new ItemStack(material, 1);
+        if(amount < 1) {
+          amount = 1;
+        }
+        final int maxSize = Util.getItemMaxStackSize(material);
+        if(amount > maxSize) {
+          amount = maxSize;
+        }
       }
+      item = new ItemStack(material, amount);
     }
-    Log.debug("Pending task for material: " + item);
-
-    final String price = parser.getArgs().getFirst();
+    Log.debug("Pending task for material: " + item + (preselectedCurrency != null? ", currency=" + preselectedCurrency : ""));
 
     while(bIt.hasNext()) {
       final Block b = bIt.next();
@@ -83,13 +110,43 @@ public class SubCommand_Create implements CommandHandler<Player> {
       if(!Util.canBeShop(b) || !ShopUtil.allowed(b, item)) {
         continue;
       }
-      // Send creation menu.
-      plugin.getShopManager().getInteractiveManager().put(sender.getUniqueId(),
-                                                          new SimpleInfo(b.getLocation(), ShopAction.CREATE_SELL, item, b.getRelative(sender.getFacing().getOppositeFace()), false));
+      final SimpleInfo info = new SimpleInfo(b.getLocation(), ShopAction.CREATE_SELL, item, b.getRelative(sender.getFacing().getOppositeFace()), false);
+      info.setPreselectedCurrency(preselectedCurrency);
+      plugin.getShopManager().getInteractiveManager().put(sender.getUniqueId(), info);
       plugin.getShopManager().handleChat(sender, price);
       return;
     }
     plugin.text().of(sender, "not-looking-at-valid-shop-block").send();
+  }
+
+  private boolean isSelectableCurrency(@NotNull final Player sender, @NotNull final String candidate) {
+
+    if(candidate.isEmpty()) {
+      return false;
+    }
+    if(isBlockedCreateCurrency(candidate)) {
+      return false;
+    }
+    final EconomyProvider provider = plugin.getEconomyManager().provider();
+    if(provider == null) {
+      return false;
+    }
+    if(!provider.multiCurrency()) {
+      return false;
+    }
+    try {
+      return provider.supportsCurrency(sender.getWorld().getName(), candidate);
+    } catch(final Throwable ignored) {
+      return false;
+    }
+  }
+
+  private boolean isBlockedCreateCurrency(@NotNull final String candidate) {
+
+    final EconomyProvider provider = plugin.getEconomyManager().provider();
+    return LGEnchantsProvider.CURRENCY_MONEY.equalsIgnoreCase(candidate)
+          && provider instanceof final LGEnchantsProvider lgEnchantsProvider
+          && lgEnchantsProvider.isTokensAvailable();
   }
 
   @Nullable
@@ -114,18 +171,54 @@ public class SubCommand_Create implements CommandHandler<Player> {
   public List<String> onTabComplete(
           @NotNull final Player sender, @NotNull final String commandLabel, @NotNull final CommandParser parser) {
 
-    if(parser.getArgs().size() == 1) {
+    final int position = parser.getArgs().size();
+    if(position == 1) {
       return Collections.singletonList(plugin.text().of(sender, "tabcomplete.price").plain());
     }
-    if(sender.getInventory().getItemInMainHand().getType().isAir()) {
-      if(parser.getArgs().size() == 2) {
+    if(position == 2) {
+      final List<String> suggestions = new ArrayList<>();
+      suggestions.addAll(availableCurrencySuggestions(sender));
+      if(sender.getInventory().getItemInMainHand().getType().isAir()) {
+        suggestions.add(plugin.text().of(sender, "tabcomplete.item").plain());
+      }
+      return suggestions.isEmpty()? Collections.emptyList() : suggestions;
+    }
+    if(position == 3) {
+      final boolean firstIsCurrency = !parser.getArgs().isEmpty() && isSelectableCurrency(sender, parser.getArgs().get(1));
+      if(firstIsCurrency) {
         return Collections.singletonList(plugin.text().of(sender, "tabcomplete.item").plain());
       }
-      if(parser.getArgs().size() == 3) {
+      if(sender.getInventory().getItemInMainHand().getType().isAir()) {
+        return Collections.singletonList(plugin.text().of(sender, "tabcomplete.amount").plain());
+      }
+    }
+    if(position == 4) {
+      final boolean firstIsCurrency = parser.getArgs().size() >= 2 && isSelectableCurrency(sender, parser.getArgs().get(1));
+      if(firstIsCurrency) {
         return Collections.singletonList(plugin.text().of(sender, "tabcomplete.amount").plain());
       }
     }
     return Collections.emptyList();
+  }
+
+  @NotNull
+  private List<String> availableCurrencySuggestions(@NotNull final Player sender) {
+
+    final EconomyProvider provider = plugin.getEconomyManager().provider();
+    if(provider == null || !provider.multiCurrency()) {
+      return Collections.emptyList();
+    }
+    final List<String> suggestions = new ArrayList<>();
+    final String world = sender.getWorld().getName();
+    for(final String candidate : new String[]{"money", "tokens", "lemons"}) {
+      try {
+        if(isSelectableCurrency(sender, candidate) && provider.supportsCurrency(world, candidate)) {
+          suggestions.add(candidate);
+        }
+      } catch(final Throwable ignored) {
+      }
+    }
+    return suggestions;
   }
 
 }

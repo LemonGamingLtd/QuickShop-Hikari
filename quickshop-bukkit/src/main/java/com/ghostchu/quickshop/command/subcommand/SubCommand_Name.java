@@ -73,19 +73,20 @@ public class SubCommand_Name implements CommandHandler<Player> {
 
     final double fee = plugin.getConfig().getDouble("shop.name-fee", 0.0);
     QSEconomyTransaction transaction = null;
+    final String feeCurrency = shop.getCurrency() != null? shop.getCurrency() : plugin.getCurrency();
     if(fee > 0) {
       if(!plugin.perm().hasPermission(sender, "quickshop.bypass.namefee")) {
         transaction = QSEconomyTransaction.builder()
                 .world(shop.bukkitLocation().getWorld().getName())
                 .from(QUserImpl.createFullFilled(sender))
                 .to(shop.getTaxAccount())
-                .currency(plugin.getCurrency())
+                .currency(feeCurrency)
                 .taxer(shop.getTaxAccount())
                 .tax(BigDecimal.ZERO)
                 .amount(BigDecimal.valueOf(fee))
                 .build();
         if(!transaction.completable()) {
-          plugin.text().of(sender, "you-cant-afford-shop-naming", plugin.getShopManager().format(fee, shop.bukkitLocation().getWorld(), plugin.getCurrency())).send();
+          plugin.text().of(sender, "you-cant-afford-shop-naming", plugin.getShopManager().format(fee, shop.bukkitLocation().getWorld(), feeCurrency)).send();
           return;
         }
       }

@@ -82,6 +82,11 @@
             <name>TheNextLvl</name>
             <url>https://repo.thenextlvl.net/releases</url>
         </repository>
+        <repository>
+            <id>lemongaming-repo</id>
+            <name>LemonGaming</name>
+            <url>https://repo.lemongaming.ltd/repository/maven-public/</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
@@ -127,6 +132,45 @@
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>VaultUnlockedAPI</artifactId>
             <version>${depend.vaultunlocked}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>ltd.lemongaming</groupId>
+            <artifactId>lg-core-spigot-plugin</artifactId>
+            <version>3.17.4</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>ltd.lemongaming</groupId>
+            <artifactId>LGEnchants</artifactId>
+            <version>1.0.4</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>*</groupId>
+                </exclusion>
+            </exclusions>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>ltd.lemongaming</groupId>
+            <artifactId>DStoreCurrency</artifactId>
+            <version>2.6.2</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

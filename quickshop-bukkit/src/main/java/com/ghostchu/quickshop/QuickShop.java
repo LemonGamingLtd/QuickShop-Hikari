@@ -40,6 +40,7 @@ import com.ghostchu.quickshop.database.HikariUtil;
 import com.ghostchu.quickshop.database.SimpleDatabaseHelperV2;
 import com.ghostchu.quickshop.economy.EconomyLoader;
 import com.ghostchu.quickshop.economy.QSEconomyManager;
+import com.ghostchu.quickshop.economy.provider.LGEnchantsProvider;
 import com.ghostchu.quickshop.hook.FWorldEditHook;
 import com.ghostchu.quickshop.hook.WorldEditHook;
 import com.ghostchu.quickshop.listener.BlockListener;
@@ -550,7 +551,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     this.priceChangeRequiresFee = this.getConfig().getBoolean("shop.price-change-requires-fee");
     this.displayItemCheckTicks = this.getConfig().getInt("shop.display-items-check-ticks");
     this.allowStack = this.getConfig().getBoolean("shop.allow-stacks");
-    this.currency = this.getConfig().getString("currency");
+    this.currency = resolveConfiguredCurrency();
     this.loggingLocation = this.getConfig().getInt("logging.location");
     this.translationMapping = new HashMap<>();
     getConfig().getStringList("custom-translation-key").forEach(str->{
@@ -561,10 +562,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     if(this.platform != null) {
       this.platform.updateTranslationMappingSection(this.translationMapping);
     }
-
-    if(CommonUtil.isEmptyString(this.currency)) {
-      this.currency = null;
-    }
     if(this.getConfig().getBoolean("logging.enable")) {
       logWatcher = new LogWatcher(this, new File(javaPlugin.getDataFolder(), "qs.log"));
     } else {
@@ -572,6 +569,38 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     }
     // Schedule this event can be run in next tick.
     //Util.mainThreadRun(() -> new QSConfigurationReloadEvent(javaPlugin).callEvent());
+  }
+
+  /**
+   * Reads the configured {@code currency} value and resolves the {@code auto} marker to the
+   * primary currency that fits the installed environment.
+   *
+   * @return the effective primary currency for shop fees, or {@code null} to use the economy default.
+   */
+  @Nullable
+  private String resolveConfiguredCurrency() {
+
+    final String configured = this.getConfig().getString("currency");
+    if(CommonUtil.isEmptyString(configured)) {
+      return null;
+    }
+    if("auto".equalsIgnoreCase(configured)) {
+      final Plugin lgEnchants = javaPlugin.getServer().getPluginManager().getPlugin("LGEnchants");
+      if(lgEnchants != null && lgEnchants.isEnabled()) {
+        return LGEnchantsProvider.CURRENCY_TOKENS;
+      }
+      return null;
+    }
+    return configured;
+  }
+
+  public void refreshPrimaryCurrency() {
+
+    final String previous = this.currency;
+    this.currency = resolveConfiguredCurrency();
+    if(!Objects.equals(previous, this.currency)) {
+      logger.info("Primary currency resolved to: {}", this.currency == null? "<economy default>" : this.currency);
+    }
   }
 
   public MainConfig mainConfig() {
