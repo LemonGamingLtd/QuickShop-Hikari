@@ -18,17 +18,19 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SignHooker extends AbstractQSListener {
 
@@ -45,12 +47,39 @@ public class SignHooker extends AbstractQSListener {
           BlockFace.UP,
           BlockFace.DOWN
   };
-  private final Map<UUID, ScrollState> scrollingPlayers = new HashMap<>();
-  private final WrappedTask scrollTask;
+  private final Map<UUID, ScrollState> scrollingPlayers = new ConcurrentHashMap<>();
+  private final Map<UUID, WrappedTask> scrollTasks = new ConcurrentHashMap<>();
 
   public SignHooker(final QuickShop plugin) {
     super(plugin);
-    this.scrollTask = QuickShop.folia().getScheduler().runTimer(this::tickScrollingSigns, SCROLL_PERIOD_TICKS, SCROLL_PERIOD_TICKS);
+  }
+
+  @Override
+  public void register() {
+    super.register();
+    for(final Player player : plugin.getJavaPlugin().getServer().getOnlinePlayers()) {
+      startScrollingTask(player);
+    }
+  }
+
+  @Override
+  public void unregister() {
+    super.unregister();
+    for(final WrappedTask task : scrollTasks.values()) {
+      task.cancel();
+    }
+    scrollTasks.clear();
+    scrollingPlayers.clear();
+  }
+
+  @EventHandler
+  public void onPlayerJoin(final PlayerJoinEvent event) {
+    startScrollingTask(event.getPlayer());
+  }
+
+  @EventHandler
+  public void onPlayerQuit(final PlayerQuitEvent event) {
+    stopScrollingTask(event.getPlayer().getUniqueId());
   }
 
   @EventHandler
@@ -78,14 +107,33 @@ public class SignHooker extends AbstractQSListener {
     }
   }
 
-  private void tickScrollingSigns() {
-    Util.ensureThread(false);
-    for (final Player player : plugin.getJavaPlugin().getServer().getOnlinePlayers()) {
-      updateScrollingSign(player);
+  private void startScrollingTask(@NotNull final Player player) {
+    if(!player.isOnline()) {
+      return;
+    }
+    final UUID uuid = player.getUniqueId();
+    stopScrollingTask(uuid);
+    final WrappedTask task = QuickShop.folia().getScheduler().runAtEntityTimer(player,
+            ()->updateScrollingSign(player),
+            ()->scrollingPlayers.remove(uuid),
+            SCROLL_PERIOD_TICKS, SCROLL_PERIOD_TICKS);
+    if(task != null) {
+      scrollTasks.put(uuid, task);
     }
   }
 
+  private void stopScrollingTask(@NotNull final UUID uuid) {
+    final WrappedTask task = scrollTasks.remove(uuid);
+    if(task != null) {
+      task.cancel();
+    }
+    scrollingPlayers.remove(uuid);
+  }
+
   private void updateScrollingSign(@NotNull final Player player) {
+    if(!player.isOnline()) {
+      return;
+    }
     final Block target = player.getTargetBlockExact(LOOK_DISTANCE);
     if( target == null || !(target.getState(false) instanceof final Sign sign)) {
       restorePreviousScrollingSign(player);
@@ -120,6 +168,9 @@ public class SignHooker extends AbstractQSListener {
   private void restorePreviousScrollingSign(@NotNull final Player player) {
     final ScrollState previous = scrollingPlayers.remove(player.getUniqueId());
     if (previous == null) {
+      return;
+    }
+    if (!QuickShop.folia().getScheduler().isOwnedByCurrentRegion(previous.signLocation())) {
       return;
     }
     final Shop previousShop = plugin.getShopManager().getShop(previous.shopId());
