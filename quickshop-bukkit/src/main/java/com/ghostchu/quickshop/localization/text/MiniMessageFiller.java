@@ -20,8 +20,14 @@ package com.ghostchu.quickshop.localization.text;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * MiniMessageFiller
@@ -50,6 +56,22 @@ public final class MiniMessageFiller {
     }
 
     return filled;
+  }
+
+  @NotNull
+  public static Component fill(@NotNull String message, @NotNull final MiniMessage miniMessage, @NotNull final TagResolver[] extraResolvers, @Nullable final Component... args) {
+
+    final List<TagResolver> resolvers = new ArrayList<>(Arrays.asList(extraResolvers));
+
+    if (args != null) {
+      for (int i = 0; i < args.length; i++) {
+
+        message = message.replace("{" + i + "}", "<arg_" + i + ">");
+        resolvers.add(Placeholder.component("arg_" + i, args[i]));
+      }
+    }
+
+    return miniMessage.deserialize(message, TagResolver.resolver(resolvers));
   }
 
   @NotNull

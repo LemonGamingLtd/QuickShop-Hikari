@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Map;
@@ -33,11 +34,27 @@ public final class Main extends CompatibilityModule {
       Bukkit.getPluginManager().disablePlugin(this);
       return;
     }
+
+    initFlags();
+  }
+
+  public void initFlags() {
+
     whitelist = getConfig().getBoolean("whitelist-mode");
     defaultTrade = getConfig().getBoolean("trade-default", false);
 
     FlagPermissions.addFlag(CREATE_FLAG);
     FlagPermissions.addFlag(TRADE_FLAG);
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void onEnable(final PluginEnableEvent event) {
+
+    if (!event.getPlugin().getName().equalsIgnoreCase("Residence")) {
+      return;
+    }
+
+    initFlags();
   }
 
   @EventHandler(ignoreCancelled = true)

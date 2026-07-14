@@ -18,6 +18,7 @@ package com.ghostchu.quickshop.util.updater;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.updater.UpdateMetadata;
 import com.ghostchu.quickshop.api.updater.UpdateProvider;
 import com.ghostchu.quickshop.util.logger.Log;
@@ -25,13 +26,12 @@ import com.ghostchu.quickshop.util.paste.item.SubPasteItem;
 import com.ghostchu.quickshop.util.paste.util.HTMLTable;
 import com.vdurmont.semver4j.Semver;
 import lombok.Getter;
-import com.ghostchu.quickshop.QuickShop;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -46,7 +46,6 @@ public class UpdateManager implements SubPasteItem {
 
   private final QuickShop plugin;
 
-  // Register providers here (or via ServiceLoader later if you want)
   private final Map<String, UpdateProvider> providers = new HashMap<>();
 
   @Getter
@@ -56,7 +55,6 @@ public class UpdateManager implements SubPasteItem {
   private boolean cachedResult = true;
   private long lastCheck = 0;
 
-  // Same 1 hour cache you used before
   private static final long CACHE_MS = TimeUnit.HOURS.toMillis(1);
 
   public UpdateManager(final QuickShop plugin) {
@@ -94,7 +92,6 @@ public class UpdateManager implements SubPasteItem {
     if(!isEnabled() || cachedMetadata == null) {
       return plugin.getVersion();
     }
-    // Keep old behavior: show releaseVersion (what most server owners want)
     return cachedMetadata.getReleaseVersion();
   }
 

@@ -4,9 +4,7 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.event.general.ShopControlPanelOpenEvent;
 import com.ghostchu.quickshop.api.localization.text.ProxiedLocale;
 import com.ghostchu.quickshop.api.obj.QUser;
-import com.ghostchu.quickshop.api.shop.IShopType;
 import com.ghostchu.quickshop.api.shop.Shop;
-import com.ghostchu.quickshop.api.shop.state.ShopState;
 import com.ghostchu.quickshop.common.util.CommonUtil;
 import com.ghostchu.quickshop.common.util.RomanNumber;
 import com.ghostchu.quickshop.util.logger.Log;
@@ -19,7 +17,6 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -36,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -639,10 +635,10 @@ public class MsgUtil {
     }
 
     if(PLUGIN == null) {
-      return Component.text(name).color(TextColor.color(NamedTextColor.AQUA))
-              .append(Component.text("(").color(TextColor.color(NamedTextColor.GOLD)))
-              .append(Component.text(uuid)).color(TextColor.color(NamedTextColor.YELLOW))
-              .append(Component.text(")").color(TextColor.color(NamedTextColor.GOLD)));
+      return Component.text(name).color(NamedTextColor.AQUA)
+              .append(Component.text("(").color(NamedTextColor.GOLD))
+              .append(Component.text(uuid)).color(NamedTextColor.YELLOW)
+              .append(Component.text(")").color(NamedTextColor.GOLD));
     } else {
       return PLUGIN.text().of(sender, "player-profile-format", name, uuid).forLocale();
     }

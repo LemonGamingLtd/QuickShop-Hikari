@@ -82,7 +82,6 @@ public class SubCommand_Name implements CommandHandler<Player> {
                 .to(shop.getTaxAccount())
                 .currency(feeCurrency)
                 .taxer(shop.getTaxAccount())
-                .tax(BigDecimal.ZERO)
                 .amount(BigDecimal.valueOf(fee))
                 .build();
         if(!transaction.completable()) {

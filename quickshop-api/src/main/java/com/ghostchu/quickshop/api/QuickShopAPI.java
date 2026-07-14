@@ -12,13 +12,16 @@ import com.ghostchu.quickshop.api.shop.PlayerFinder;
 import com.ghostchu.quickshop.api.shop.ShopControlPanelManager;
 import com.ghostchu.quickshop.api.shop.ShopItemBlackList;
 import com.ghostchu.quickshop.api.shop.ShopManager;
+import com.ghostchu.quickshop.api.shop.display.DisplayManager;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionManager;
 import com.ghostchu.quickshop.api.shop.tag.TagManager;
 import com.vdurmont.semver4j.Semver;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Map;
@@ -106,6 +109,21 @@ public interface QuickShopAPI {
   }
 
   /**
+   * Retrieves the main configuration object of the QuickShop system.
+   *
+   * This method provides access to the QSConfig instance, which is responsible
+   * for managing the configuration settings of the plugin. The returned object
+   * allows for reading, updating, and saving configuration options crucial for
+   * the proper functioning of the system.
+   *
+   * @since 6.3.0.0
+   *
+   * @return The QSConfig instance representing the main configuration of QuickShop.
+   */
+  @NotNull
+  YamlDocument getConfig();
+
+  /**
    * Getting command manager that allow addon direct access QuickShop sub-command system
    *
    * @return The command manager
@@ -179,6 +197,14 @@ public interface QuickShopAPI {
    * @return Shop manager
    */
   ShopManager getShopManager();
+
+  /**
+   * Retrieves the instance of the DisplayManager responsible for managing display functionalities.
+   *
+   * @return The DisplayManager instance, which handles operations related to displays for various types of entities.
+   */
+  @Nullable
+  DisplayManager<?> getDisplayManager();
 
   /**
    * Getting text manager that allow addon to create a user language locale based message

@@ -13,7 +13,6 @@ import com.ghostchu.quickshop.localization.text.postprocessing.impl.FixClientIte
 import com.ghostchu.quickshop.localization.text.postprocessing.impl.ForceReplaceFillerProcessor;
 import com.ghostchu.quickshop.localization.text.postprocessing.impl.PlaceHolderApiProcessor;
 import com.ghostchu.quickshop.util.MsgUtil;
-import com.ghostchu.quickshop.util.PackageUtil;
 import com.ghostchu.quickshop.util.Util;
 import com.ghostchu.quickshop.util.logger.Log;
 import com.ghostchu.quickshop.util.paste.GuavaCacheRender;
@@ -488,8 +487,9 @@ public class SimpleTextManager implements TextManager, Reloadable, SubPasteItem 
     return false;
   }
 
+  @Override
   @NotNull
-  private String getDefLocale() {
+  public String getDefLocale() {
 
     final Iterator<String> defLocale = availableLanguages.iterator();
     if(defLocale.hasNext()) {
@@ -1000,6 +1000,7 @@ public class SimpleTextManager implements TextManager, Reloadable, SubPasteItem 
 
         final String filled = MiniMessageFiller.fillRaw(str, args);
         final Component component = manager.plugin.platform().miniMessage().deserialize(filled, tagResolvers);
+        //final Component component = MiniMessageFiller.fill(str, manager.plugin.platform().miniMessage(), tagResolvers, args);
         return postProcess(component);
       }
     }

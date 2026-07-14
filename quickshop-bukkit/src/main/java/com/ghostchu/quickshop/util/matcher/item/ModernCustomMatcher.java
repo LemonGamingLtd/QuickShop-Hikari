@@ -26,7 +26,6 @@ import com.ghostchu.simplereloadlib.ReloadStatus;
 import com.ghostchu.simplereloadlib.Reloadable;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.papermc.paper.datacomponent.DataComponentType;
-import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;
@@ -257,9 +256,14 @@ public class ModernCustomMatcher implements ItemMatcher, Reloadable {
                                   "DYED_COLOR"
                                  );
 
-      // Fish bucket entity data
+      // Fish bucket entity data, and various fish variants
       case "fish_bucket" -> add(out, registry,
-                                "BUCKET_ENTITY_DATA"
+                                "BUCKET_ENTITY_DATA",
+                                "AXOLOTL/VARIANT",
+                                "SALMON/SIZE",
+                                "TROPICAL_FISH/PATTERN",
+                                "TROPICAL_FISH/BASE_COLOR",
+                                "TROPICAL_FISH/BASE_COLOR"
                                );
 
       // Suspicious stew effects

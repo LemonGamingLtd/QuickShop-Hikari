@@ -374,6 +374,8 @@ support-disable-reason:
 supertool-is-disabled: <red>Супер-інструмент вимкнено. Неможливо зламати жоден магазин.
 unknown-owner: Невідомо
 restricted-prices: '<red>Обмежена ціна для {0}: Мін. {1}, макс. {2}'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <green>Магазин знаходиться на відстані {0} блоків від вас.
 owner-bypass-check: <yellow>Усі перевірки пройдено. Торгівля успішна! (Тепер ви власник магазину!)
 april-rick-and-roll-easter-egg: "<hover:show_text:'Click to open in browser for time limited rewards!'>Натисніть, щоб відкрити в браузері та отримати тимчасові нагороди!'><click:open_url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ'><green>Натисніть тут, щоб отримати тимчасові нагороди від розробника QuickShop-Hikari!</green></click></hover>"
@@ -395,6 +397,10 @@ signs:
   selling: Продаж {0}
   status-available: <green>
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>Ви не можете торгувати від'ємною кількістю
 display-turn-on: <green>Успішно увімкнено відображення магазину.
 display-turn-off: <green>Успішно вимкнено відображення магазину.
@@ -408,7 +414,7 @@ backup-failed: Не вдалося створити резервну копію 
 shop-staff-cleared: <green>Успішно видалено весь персонал з вашого магазину.
 price-too-high: <red>Ціна магазину занадто висока! Ви не можете створити магазин з ціною вищою за {0}.
 plugin-cancelled: '<red>Операцію скасовано. Причина: {0}'
-player-sold-to-your-store: <green>{0} продав(-ла) {1} {2} у ваш магазин.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <dark_purple>У вашому магазині за координатами {0}, {1}, {2} закінчився {3}!
 how-many-buy: <green>Введіть у чат, скільки ви бажаєте <aqua>КУПИТИ</aqua>. Ви можете купити <yellow>{0}</yellow>. Введіть <aqua>{1}</aqua>, щоб купити все.
 language-info-panel:
@@ -786,6 +792,8 @@ transfer-rejected-fromside: <red>Гравець <aqua>{0}</aqua> відхили�
 transfer-rejected-toside: <red>Ви відхилили запит на передачу магазину від <aqua>{0}</aqua>.
 transfer-no-pending-operation: <red>У вас немає очікуючих запитів на передачу.
 transfer-no-self: <red>Ви не можете передати свої магазини самому собі.
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>Сума всіх прибутків не може бути більшою або дорівнювати 100%.
 benefit-exists: <red>Цільовий гравець вже є у списку прибутків цього магазина.
 benefit-removed: <red>Цільового гравця видалено з прибутків магазина.
@@ -1641,6 +1649,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Custom Order</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1702,6 +1712,30 @@ gui:
       display: "<white>Back to Shop</white>"
   browse:
     title: "<dark_aqua>Market Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Owner: </green><yellow>{0}</yellow>"
@@ -1731,6 +1765,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1746,6 +1786,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

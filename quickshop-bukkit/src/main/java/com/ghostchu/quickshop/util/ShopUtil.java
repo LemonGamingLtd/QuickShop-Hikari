@@ -31,6 +31,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.ShopAction;
 import com.ghostchu.quickshop.api.shop.ShopManager;
 import com.ghostchu.quickshop.api.shop.permission.BuiltInShopPermission;
+import com.ghostchu.quickshop.common.util.CalculateUtil;
 import com.ghostchu.quickshop.economy.transaction.QSEconomyTransaction;
 import com.ghostchu.quickshop.obj.QUserImpl;
 import com.ghostchu.quickshop.shop.SimpleInfo;
@@ -39,6 +40,7 @@ import com.ghostchu.quickshop.util.logger.Log;
 import lombok.Data;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
@@ -76,7 +78,7 @@ public class ShopUtil {
 
   public static boolean allowed(final Block shopBlock, final ItemStack itemStack) {
 
-    if(shopBlock.getState() instanceof ShulkerBox
+    if(shopBlock.getState(false) instanceof ShulkerBox
        && itemStack.getItemMeta() instanceof final BlockStateMeta blockMeta
        && blockMeta.getBlockState() instanceof ShulkerBox) {
 
@@ -113,6 +115,63 @@ public class ShopUtil {
     QuickShop.getInstance().text().of(receiver, "transfer-single-ask", 60).send();
   }
 
+  /**
+   * Initiates a transfer request for a single shop from a sender user to a receiver user.
+   *
+   * @param senderQUser The sending user initiating the transfer. Must not be null.
+   *                    The user must have a valid unique ID.
+   * @param receiverQUser The receiving user for the transfer. Must not be null.
+   *                      The user must have a valid unique ID. Cannot be the same user as the sender.
+   * @param name The string name of the receiving player. Must not be null.
+   * @param shop The shop to be transferred as part of the request. Must not be null.
+   */
+  public static void transferRequest(@NotNull final QUser senderQUser, @NotNull final QUser receiverQUser, @NotNull final String name, @NotNull final Shop shop) {
+
+    transferRequest(senderQUser, receiverQUser, name, List.of(shop));
+  }
+
+  /**
+   * Initiates a transfer request of shops from a sender user to a receiver user.
+   *
+   * @param senderQUser The sending user initiating the transfer. Must not be null.
+   *                    The user must have a valid unique ID.
+   * @param receiverQUser The receiving user for the transfer. Must not be null.
+   *                      The user must have a valid unique ID. Cannot be the same user as the sender.
+   * @param name The string name of the receiving player. Must not be null.
+   * @param shopsToTransfer A list of shops to be transferred. Must not be null.
+   *                        The provided list should contain valid shop entries.
+   */
+  public static void transferRequest(@NotNull final QUser senderQUser, @NotNull final QUser receiverQUser, @NotNull final String name, @NotNull final List<Shop> shopsToTransfer) {
+
+    if(senderQUser.getUniqueId() == null || receiverQUser.getUniqueId() == null) {
+      //TODO: send error message/will this happen?
+      return;
+    }
+
+    if(senderQUser.getUniqueId().equals(receiverQUser.getUniqueId())) {
+      QuickShop.getInstance().text().of(senderQUser, "transfer-no-self", name).send();
+      return;
+    }
+
+    final ShopUtil.PendingTransferTask task = new ShopUtil.PendingTransferTask(senderQUser, receiverQUser, shopsToTransfer);
+    taskCache.put(receiverQUser.getUniqueId(), task);
+    QuickShop.getInstance().text().of(senderQUser, "transfer-sent", name).send();
+    QuickShop.getInstance().text().of(receiverQUser, "transfer-single-request", senderQUser.getDisplay()).send();
+    QuickShop.getInstance().text().of(receiverQUser, "transfer-single-ask", 60).send();
+  }
+
+  //check if the price will fit within DECIMAL(32,2)
+  public static boolean isValidPrice(final BigDecimal price) {
+
+    //At most 2 decimal places
+    if (price.scale() > 2) {
+      return false;
+    }
+
+    //max 32 total digits
+    return price.precision() <= 32;
+  }
+
   public static void setPrice(final QuickShop plugin, @NotNull final QUser user, final double price, @NotNull final Shop shop) {
 
     if(user.getUniqueId() == null || user.getBukkitPlayer().isEmpty()) {
@@ -141,9 +200,15 @@ public class ShopUtil {
       return;
     }
 
+    final BigDecimal priceBigDecimal = BigDecimal.valueOf(price);
+    if(!isValidPrice(priceBigDecimal)) {
+      plugin.text().of(user, "digits-reach-the-limit", Component.text(32)).send();
+      return;
+    }
+
     final int maximumDigitsInPrice = plugin.getConfig().getInt("shop.maximum-digits-in-price", -1);
     if(maximumDigitsInPrice != -1) {
-      final int inputScale = Math.max(BigDecimal.valueOf(price).stripTrailingZeros().scale(), 0);
+      final int inputScale = Math.max(priceBigDecimal.stripTrailingZeros().scale(), 0);
       if(inputScale > maximumDigitsInPrice) {
         plugin.text().of(user, "digits-reach-the-limit", Component.text(maximumDigitsInPrice)).send();
         return;
@@ -152,20 +217,32 @@ public class ShopUtil {
 
     final String shopCurrency = shop.getCurrency() != null? shop.getCurrency() : plugin.getCurrency();
     final PriceLimiterCheckResult checkResult = limiter.check(user, shop.getItem(), shopCurrency, price);
+    final String currency = (shop.getCurrency() == null)? ((plugin.getCurrency() == null)? "" : plugin.getCurrency()) : shop.getCurrency();
+    final World world = shop.bukkitLocation().getWorld();
+    final EconomyProvider econ = plugin.getEconomyManager().provider();
+
+    final double min = checkResult.getMin();
+    final double max = checkResult.getMax();
+    final String minFormatted = econ != null? econ.format(BigDecimal.valueOf(min), world.getName(), currency) : String.valueOf(min);
+    final String maxFormatted = econ != null? econ.format(BigDecimal.valueOf(max), world.getName(), currency) : String.valueOf(max);
 
     switch(checkResult.getStatus()) {
       case PRICE_RESTRICTED -> {
-        plugin.text().of(user.getUniqueId(), "restricted-prices", Util.getItemStackName(shop.getItem()),
-                         Component.text(checkResult.getMin()),
-                         Component.text(checkResult.getMax())).send();
+        if (min > 0 && max >= 0) {
+          plugin.text().of(user.getUniqueId(), "restricted-prices", Util.getItemStackName(shop.getItem()), minFormatted, maxFormatted).send();
+        } else if (min > 0) {
+          plugin.text().of(user.getUniqueId(), "restricted-price-min", Util.getItemStackName(shop.getItem()), minFormatted).send();
+        } else {
+          plugin.text().of(user.getUniqueId(), "restricted-price-max", Util.getItemStackName(shop.getItem()), maxFormatted).send();
+        }
         return;
       }
       case REACHED_PRICE_MIN_LIMIT -> {
-        plugin.text().of(user, "price-too-cheap", (format)? MsgUtil.decimalFormat(checkResult.getMin()) : Double.toString(checkResult.getMin())).send();
+        plugin.text().of(user, "price-too-cheap", minFormatted).send();
         return;
       }
       case REACHED_PRICE_MAX_LIMIT -> {
-        plugin.text().of(user, "price-too-high", (format)? MsgUtil.decimalFormat(checkResult.getMax()) : Double.toString(checkResult.getMax())).send();
+        plugin.text().of(user, "price-too-high", maxFormatted).send();
         return;
       }
       case NOT_A_WHOLE_NUMBER -> {
@@ -181,6 +258,7 @@ public class ShopUtil {
 
     if(event.callCancellableEvent()) {
       Log.debug("A plugin cancelled the price change event.");
+      plugin.text().of(user, "plugin-cancelled", event.getCancelReason()).send();
       return;
     }
 
@@ -371,9 +449,11 @@ public class ShopUtil {
     final double ownerBalance = eco
             .balance(shop.getOwner(), shop.bukkitLocation().getWorld().getName(),
                      shop.getCurrency()).doubleValue();
+    final double shopTaxRate = QuickShop.getInstance().getShopManager().taxManager().provider().calculateTax(shop, QUserImpl.createFullFilled(p)).shopRate();
+    final double priceWithTax = CalculateUtil.multiply(shop.getPrice(), 1 + shopTaxRate);
     final int ownerCanAfford;
     if(shop.getPrice() != 0) {
-      ownerCanAfford = (int)(ownerBalance / shop.getPrice());
+      ownerCanAfford = (int)(ownerBalance / priceWithTax);
     } else {
       ownerCanAfford = Integer.MAX_VALUE;
     }
@@ -402,7 +482,7 @@ public class ShopUtil {
         // when typed 'all' but the shop owner doesn't have enough money to buy at least 1
         // item (and shop isn't unlimited or pay-unlimited is true)
         QuickShop.getInstance().text().of(p, "the-owner-cant-afford-to-buy-from-you",
-                                          QuickShop.getInstance().getShopManager().format(shop.getPrice(), shop.bukkitLocation().getWorld(),
+                                          QuickShop.getInstance().getShopManager().format(priceWithTax, shop.bukkitLocation().getWorld(),
                                                                                           shop.getCurrency()),
                                           QuickShop.getInstance().getShopManager().format(ownerBalance, shop.bukkitLocation().getWorld(),
                                                                                           shop.getCurrency())).send();
@@ -445,9 +525,12 @@ public class ShopUtil {
     }
     // typed 'all', check if player has enough money than price * amount
     final double price = shop.getPrice();
-    final double balance = eco.balance(QUserImpl.createFullFilled(p), shop.bukkitLocation().getWorld().getName(),
+    final QUser buyerQUser = QUserImpl.createFullFilled(p);
+    final double interactorTaxRate = QuickShop.getInstance().getShopManager().taxManager().provider().calculateTax(shop, buyerQUser).interactorRate();
+    final double priceWithTax = CalculateUtil.multiply(price, 1 + interactorTaxRate);
+    final double balance = eco.balance(buyerQUser, shop.bukkitLocation().getWorld().getName(),
                                        shop.getCurrency()).doubleValue();
-    amount = Math.min(amount, (int)Math.floor(balance / price));
+    amount = Math.min(amount, (int)Math.floor(balance / priceWithTax));
     if(amount < 1) { // typed 'all' but the auto set amount is 0
       // when typed 'all' but player can't buy any items
       if(!shop.isUnlimited() && shopHaveItems < 1) {
@@ -464,7 +547,7 @@ public class ShopUtil {
           return 0;
         }
         QuickShop.getInstance().text().of(p, "you-cant-afford-to-buy",
-                                          QuickShop.getInstance().getShopManager().format(price, shop.bukkitLocation().getWorld(),
+                                          QuickShop.getInstance().getShopManager().format(priceWithTax, shop.bukkitLocation().getWorld(),
                                                                                           shop.getCurrency()),
                                           QuickShop.getInstance().getShopManager().format(balance, shop.bukkitLocation().getWorld(),
                                                                                           shop.getCurrency())).send();

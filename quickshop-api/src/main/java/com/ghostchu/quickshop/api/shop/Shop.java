@@ -1,41 +1,29 @@
 package com.ghostchu.quickshop.api.shop;
 
 import com.ghostchu.quickshop.api.QuickShopAPI;
-import com.ghostchu.quickshop.api.economy.benefit.BenefitProvider;
-import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
-import com.ghostchu.quickshop.api.inventory.InventoryWrapperManager;
-import com.ghostchu.quickshop.api.localization.text.ProxiedLocale;
-import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.inventory.ShopInventory;
 import com.ghostchu.quickshop.api.shop.meta.ShopDisplay;
+import com.ghostchu.quickshop.api.shop.meta.ShopExtraHolder;
 import com.ghostchu.quickshop.api.shop.meta.ShopMeta;
-import com.ghostchu.quickshop.api.shop.permission.BuiltInShopPermission;
-import com.ghostchu.quickshop.api.shop.permission.BuiltInShopPermissionGroup;
 import com.ghostchu.quickshop.api.shop.permission.ShopPermission;
-import com.ghostchu.quickshop.api.shop.state.ShopState;
 import com.ghostchu.quickshop.api.shop.trading.ShopTrading;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * A shop
  */
-public interface Shop<U, L> extends Locatable<L>, ShopInventory, ShopMeta<U>, ShopTrading, ShopDisplay, ShopPermission {
+public interface Shop<U, L> extends Locatable<L>, ShopInventory, ShopMeta<U>, ShopTrading, ShopDisplay, ShopPermission, ShopExtraHolder {
 
   NamespacedKey SHOP_NAMESPACED_KEY = new NamespacedKey(QuickShopAPI.getPluginInstance(), "shopsign");
 
@@ -54,6 +42,8 @@ public interface Shop<U, L> extends Locatable<L>, ShopInventory, ShopMeta<U>, Sh
    * @return ExtraSection, save it through Shop#setExtra. If you don't save it, it may randomly lose
    * or save
    */
+  @Deprecated(forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "6.4.0.0")
   @NotNull
   ConfigurationSection getExtra(@NotNull Plugin plugin);
 
@@ -116,14 +106,6 @@ public interface Shop<U, L> extends Locatable<L>, ShopInventory, ShopMeta<U>, Sh
   void openPreview(@NotNull Player player);
 
   /**
-   * Save the plugin extra data to Json format
-   *
-   * @return The json string
-   */
-  @NotNull
-  String saveExtraToYaml();
-
-  /**
    * Getting ShopInfoStorage that you can use for storage the shop data
    *
    * @return ShopInfoStorage
@@ -146,10 +128,21 @@ public interface Shop<U, L> extends Locatable<L>, ShopInventory, ShopMeta<U>, Sh
   /**
    * Save the extra data to the shop.
    *
-   * @param plugin Plugin instace
-   * @param data   The data table
+   * @param plugin Plugin instance
+   * @param data   The data table, or null to remove it
    */
-  void setExtra(@NotNull Plugin plugin, @NotNull ConfigurationSection data);
+  @Deprecated(forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "6.4.0.0")
+  default void setExtra(@NotNull final Plugin plugin, @Nullable final ConfigurationSection data) {
+    if (data == null) {
+      return;
+    }
+
+    final Map<String, String> extra = new HashMap<>();
+    data.getValues(true).forEach((k, v) -> extra.put(k, String.valueOf(v)));
+
+    setExtra(plugin, extra);
+  }
 
   /**
    * Update shop data to database

@@ -363,6 +363,8 @@ support-disable-reason:
 supertool-is-disabled: <red>Superherramienta deshabilitada. No se puede romper ninguna tienda de empresa.
 unknown-owner: Desconocido
 restricted-prices: '<red>Precio restringido de {0}: Mín. {1}, Máx. {2}'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <green>La tienda de empresa está a {0} bloques de ti.
 owner-bypass-check: <yellow>Pasado todos los controles. ¡Comercio exitoso! (¡Ahora eres el propietario de la tienda de empresa!)
 april-rick-and-roll-easter-egg: "<green>---------------------------------------------------</green>\n<rainbow><bold>LIMITED TIME EVENT -- QuickShop-Hikari</bold></rainbow>\n<yellow>Get your <gold>PREMIUM</gold> particle effect on all QuickShop server!</yellow>\n<aqua>Claim it by watch the video tutorial below!</aqua>\n<hover:show_text:'<gold>Click to open rewards claim page in your browser.</gold><click:open_url:'https://youtu.be/dQw4w9WgXcQ'>https://youtu.be/dQw4w9WgXcQ</click></hover>\n<green>---------------------------------------------------</green>"
@@ -384,6 +386,10 @@ signs:
   selling: Vendo {0}u
   status-available: <green>
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>No puedes comerciar con valores negativos
 display-turn-on: <green>Se encendió con éxito la exhibición de la tienda de empresa.
 display-turn-off: <green>Se apagó con éxito la exhibición de la tienda de empresa.
@@ -397,7 +403,7 @@ backup-failed: No se puede hacer una copia de seguridad de la base de datos. Rev
 shop-staff-cleared: <green>Todo el personal de tu tienda de empresa ha sido eliminado con éxito.
 price-too-high: <red>¡El precio establecido es demasiado alto! No puedes crear una tienda de empresa con un precio superior a {0}.
 plugin-cancelled: '<red>Operation cancelled, Reason: {0}'
-player-sold-to-your-store: <green>{0} ha vendido {1} {2} en tu tienda de empresa.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <dark_purple>Tu tienda de empresa en {0}, {1}, {2} se ha quedado sin {3}!
 how-many-buy: <green>Ingresa en el chat, cuantos desea <aqua>COMPRAR<green>. Puede comprar <yellow>{0}<green>. Introduce <aqua>{1}<green> para comprarlos todos.
 language-info-panel:
@@ -766,6 +772,8 @@ transfer-rejected-fromside: <red>Player <aqua>{0}</aqua> rejected your shop tran
 transfer-rejected-toside: <red>You rejected <aqua>{0}</aqua>'s shop transfer request.
 transfer-no-pending-operation: <red>You don't have pending transfer request yet.
 transfer-no-self:
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>La suma de todos los beneficios no puede ser mayor o igual al 100%.
 benefit-exists: <red>El jugador objetivo ya está en la lista de beneficios de esta.
 benefit-removed: <red>El jugador objetivo ha sido eliminado de los beneficios de la tienda de empresa.
@@ -1625,6 +1633,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Custom Order</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1686,6 +1696,30 @@ gui:
       display: "<white>Back to Shop</white>"
   browse:
     title: "<dark_aqua>Market Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Owner: </green><yellow>{0}</yellow>"
@@ -1715,6 +1749,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1730,6 +1770,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

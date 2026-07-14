@@ -363,6 +363,8 @@ support-disable-reason:
 supertool-is-disabled: <red>Supernástroj je zakázán. Nelze rozbít žádné obchody.
 unknown-owner: Nezname
 restricted-prices: '<aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <red>Omezená cena za {0}: Min {1}, max {2}'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Shop je od vás {0} bloků.
 owner-bypass-check: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Prošel všechny kontroly. Obchod byl úspěšný! (Nyní jste vlastníkem obchodu!)
 april-rick-and-roll-easter-egg: "<green>---------------------------------------------------</green>\n<rainbow><bold>LIMITED TIME EVENT -- QuickShop-Hikari</bold></rainbow>\n<yellow>Get your <gold>PREMIUM</gold> particle effect on all QuickShop server!</yellow>\n<aqua>Claim it by watch the video tutorial below!</aqua>\n<hover:show_text:'<gold>Click to open rewards claim page in your browser.</gold><click:open_url:'https://youtu.be/dQw4w9WgXcQ'>https://youtu.be/dQw4w9WgXcQ</click></hover>\n<green>---------------------------------------------------</green>"
@@ -384,6 +386,10 @@ signs:
   selling: Prodej {0}
   status-available: <green>
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>Derp, nemůžeš obchodovat se zápornými částkami
 display-turn-on: <green>Úspěšně zapnuto zobrazení obchodu.
 display-turn-off: <green>Úspěšně vypnuto zobrazení obchodu.
@@ -397,7 +403,7 @@ backup-failed: Nelze zálohovat databázi. Podrobnosti naleznete v konzole.
 shop-staff-cleared: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Úspěšně byli odebráni všichni členi z tvého obchodu.
 price-too-high: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <red>Cena obchodu je příliš vysoká! Nelze vytvořit s cenou vyšší než {0}.
 plugin-cancelled: '<red>Operation cancelled, Reason: {0}'
-player-sold-to-your-store: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Hráč {0} prodal {1} {2} do tvého obchodu.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <aqua>▪<dark_gray>▏ <aqua>System <dark_gray>› <gray>Váš obchod v {0}, {1}, {2}, vyčerpal {3}!
 how-many-buy: <gray>Napište do chatu, kolik si přejete <aqua>Koupit<gray>. Můžete si koupit <aqua>{0}<gray>. Zadejte <aqua>{1}<gray> pro zakoupení všech.
 language-info-panel:
@@ -769,6 +775,8 @@ transfer-rejected-fromside: <red>Player <aqua>{0}</aqua> rejected your shop tran
 transfer-rejected-toside: <red>You rejected <aqua>{0}</aqua>'s shop transfer request.
 transfer-no-pending-operation: <red>You don't have pending transfer request yet.
 transfer-no-self: <red>You can't transfer your shops to yourself.
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>The sum of all benefits cannot be greater than or equal to 100%.
 benefit-exists: <red>Target player already in benefits list on this shop.
 benefit-removed: <red>Target player has been removed from shop benefits.
@@ -1624,6 +1632,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Custom Order</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1685,6 +1695,30 @@ gui:
       display: "<white>Back to Shop</white>"
   browse:
     title: "<dark_aqua>Market Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Owner: </green><yellow>{0}</yellow>"
@@ -1714,6 +1748,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1729,6 +1769,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

@@ -374,6 +374,8 @@ support-disable-reason:
 supertool-is-disabled: <red>Supertool išjungtas. Negalima sulaužyti parduotuvių.
 unknown-owner: Nežinomas/a
 restricted-prices: '<red>Ribota kaina nuo {0}: Min {1}, Max {2}'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <green>Parduotuvė yra {0} blokais toliau nuo jūsų.
 owner-bypass-check: <yellow>Praėjote visus patikrinimus. Mainai sėkmingai pavyko! (Nuo šiol jūs esate šios parduotuvės savininkas)
 april-rick-and-roll-easter-egg: "<hover:show_text:'Paspauskite, kad atidarytumėte naršyklėje ir gautumėte laikinus apdovanojimus!'>click:open_url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ'<green>Paspauskite čia, kad gautumėte laikinus apdovanojimus, kuriuos suteikia QuickShop-Hikari kūrėjas!</green></click></hover>"
@@ -395,6 +397,10 @@ signs:
   selling: Parduodama {0}
   status-available: <green>Galima
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>Negalima pardavinėti neigiamomis sumomis
 display-turn-on: <green>Parduotuvės ekranas įjungtas sėkmingai.
 display-turn-off: <green>Parduotuvės ekranas išjungtas sėkmingai.
@@ -408,7 +414,7 @@ backup-failed: Nepavyko sukurti atsarginės duomenų bazės kopijos. Daugiau inf
 shop-staff-cleared: <green>Sėkmingai pašalinti visi prižiūrėtojai iš jūsų parduotuvės.
 price-too-high: <red>Parduotuvės kaina per didelė! Negalite sukurti parduotuvės, kurios kaina viršija {0}.
 plugin-cancelled: '<red>Veiksmas atšauktas, priežastis: {0}'
-player-sold-to-your-store: <green>{0} Gauta {1} {2} į jūsų parduotuvę.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <dark_purple>Jūsų parduotuvė {0}, {1}, {2} ištuštinta ir trūksta {3}!
 how-many-buy: <green>Įveskite pokalbyje, kiek norite <aqua>PIRKTI<green>. Galite įsigyti <yellow>{0}</yellow>. Įveskite <aqua>{1}</aqua>, jei norite nusipirkti viską.
 language-info-panel:
@@ -785,6 +791,8 @@ transfer-rejected-fromside: <red>Žaidėjas <aqua>{0}</aqua> atsisakė jūsų pa
 transfer-rejected-toside: <red>Jūs atsisakėte žaidėjo <aqua>{0}</aqua> parduotuvės perdavimo užklausos.
 transfer-no-pending-operation: <red>Jūs neturite laukiančios perdavimo užklausos.
 transfer-no-self: <red>Negalite perkelti savo parduotuvių sau patiems.
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>Visų naudotojų naudų suma negali būti didesnė ar lygi 100%.
 benefit-exists: <red>Žaidėjas jau yra naudos sąraše šioje parduotuvėje.
 benefit-removed: <red>Žaidėjas pašalintas iš naudos sąrašo šioje parduotuvėje.
@@ -1641,6 +1649,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Custom Order</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1702,6 +1712,30 @@ gui:
       display: "<white>Back to Shop</white>"
   browse:
     title: "<dark_aqua>Market Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Owner: </green><yellow>{0}</yellow>"
@@ -1731,6 +1765,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1746,6 +1786,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

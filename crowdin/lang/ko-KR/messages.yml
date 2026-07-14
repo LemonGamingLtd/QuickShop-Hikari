@@ -77,7 +77,7 @@ how-many-buy-stack: <yellow>채팅에 입력하세요, 묶음을 얼마나 <aqua
 exceeded-maximum: <red>자바에서 허용하는 최대 값을 초과했습니다.
 unlimited-shop-owner-keeped: '<yellow>주의: 상점 주인은 여전히 무제한 상점의 주인입니다, 상점을 소유하려면 상점을 초기화해야합니다.'
 no-enough-money-to-keep-shops: <red>당신은 당신의 상점유지에 필요한 돈이 없습니다! 모든상점이 제거 됩니다...
-3rd-plugin-build-check-failed: <red>플러그인 <bold>{0}<reset><red>가 권한 검사를 거부하였습니다., 권한 설정을 하셨나요?
+3rd-plugin-build-check-failed: "<red><bold>{0}<reset><red>에 의해 상점을 생성할 수 없습니다.\n해당 지역에 대한 권한이 필요합니다."
 not-a-integer: <red>당신은 숫자만 입력해야하지만 {0} 을(를) 입력하였습니다.
 translation-country: '언어 지역: 한국어 (ko_KR)'
 buying-more-than-selling: '<red>주의: 당신이 구매하려는 수량이 판매하는 수량보다 많습니다!'
@@ -363,6 +363,8 @@ support-disable-reason:
 supertool-is-disabled: <red>슈퍼툴이 비활성화 되어있습니다. 어느 상점도 부술 수 없습니다.
 unknown-owner: 알 수 없음
 restricted-prices: '<red>{0} 에 대한 가격이 제한되었습니다. 최소 {1} 원, 최대 {2} 원'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <green>그 상점은 당신을 기준으로 {0}블록 떨어진 곳에 있습니다.
 owner-bypass-check: <yellow>모든 조사를 통과하여, 거래를 완료했습니다! (당신은 상점 주인입니다.)
 april-rick-and-roll-easter-egg: "<hover:show_text:'Click to open in browser for time limited rewards!'><click:open_url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ'><green>Click here to acquire your time limited rewards that provided by QuickShop-Hikari developer!</green></click></hover>"
@@ -370,20 +372,24 @@ signs:
   item-right: ''
   out-of-space: 공간 부족
   unlimited: 무제한
-  stack-selling: '&6판매중 {0} 개'
+  stack-selling: 판매 중 {0} 개
   stack-price: '아이템 {2}, {1} 개당 {0}원'
   status-unavailable: <red>
   out-of-stock: 일시 품절
-  stack-buying: '&b구매중 {0} 개'
+  stack-buying: 구매 {0} 개
   freeze: 거래 비활성화
   price: '개당 {0}'
-  buying: '&b구매 {0} 개'
+  buying: 구매 {0} 개
   header: '{1}{0}의 상점'
   header-available: <green>{0}
   header-unavailable: <red>{0}
-  selling: '&6판매 {0} 개'
+  selling: 판매 {0} 개
   status-available: <green>
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>갯수는 음수(-)일수 없습니다. 양수로 입력해주세요. (숫자만 입력해주세요.)
 display-turn-on: <green>상점 디스플레이를 성공적으로 켰습니다.
 display-turn-off: <green>상점 디스플레이를 성공적으로 껏습니다.
@@ -397,7 +403,7 @@ backup-failed: 데이터베이스에 백업할 수 없습니다, 자세한 내�
 shop-staff-cleared: <green>성공적으로 당신 상점의 모든 관리자를 해고하였습니다.
 price-too-high: <red>상점의 가격이 너무 높습니다! 당신은 {0} 원 이상의 상점을 만들수 없습니다!
 plugin-cancelled: '<red>Operation cancelled, Reason: {0}'
-player-sold-to-your-store: <green>{0} 님이 {2}  {1} 개을 (를) 유저님의 상점에 판매했습니다.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <dark_purple>{0}, {1}, {2} 에 있는 당신의 가게의 물품 {3} 이 (가) 부족합니다.
 how-many-buy: <green>채팅으로 원하는 <aqua>구매<green> 개수를 입력해주세요. 당신은 <yellow>{0}<green>개를 구매할 수 있습니다. <aqua>{1}<green>을 입력해 전부 구매 가능합니다.
 language-info-panel:
@@ -770,6 +776,8 @@ transfer-rejected-fromside: <red>Player <aqua>{0}</aqua> rejected your shop tran
 transfer-rejected-toside: <red>You rejected <aqua>{0}</aqua>'s shop transfer request.
 transfer-no-pending-operation: <red>You don't have pending transfer request yet.
 transfer-no-self: <red>You can't transfer your shops to yourself.
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>The sum of all benefits cannot be greater than or equal to 100%.
 benefit-exists: <red>Target player already in benefits list on this shop.
 benefit-removed: <red>Target player has been removed from shop benefits.
@@ -1625,6 +1633,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Custom Order</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1686,6 +1696,30 @@ gui:
       display: "<white>Back to Shop</white>"
   browse:
     title: "<dark_aqua>Market Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Owner: </green><yellow>{0}</yellow>"
@@ -1715,6 +1749,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1730,6 +1770,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

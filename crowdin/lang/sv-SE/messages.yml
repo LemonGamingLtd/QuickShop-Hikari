@@ -1,11 +1,11 @@
-break-shop-use-supertool: <yellow>You can break the shop by using the super tool.
+break-shop-use-supertool: <yellow>Du kan ta bort butiken med hjälp av superverktyget.
 fee-charged-for-price-change: <green>Du betalade <red>{0}<green> för att ändra priset.
 not-allowed-to-create: <red>Du får inte skapa en butik här.
 disabled-in-this-world: <red>QuickShop är inaktiverat i denna värld
 how-much-to-trade-for: <green>Ange i chatten, hur mycket du vill sälja <yellow>{1}x {0}<green> för.
 client-language-changed: <green>QuickShop upptäckte att ditt klientspråk har ändrats, vi använder nu {0} språk för dig.
 shops-backingup: Skapar butik-backup från databasen...
-_comment: Hi translator! If you're editing this on GitHub or through the source code should you go to https://crowdin.com/project/qs-hikari instead.
+_comment: Hej översättare! Om du redigerar detta från Github eller i kodkällor, besök istället https://crowdin.com/project/qs-hikari .
 unlimited-shop-owner-changed: <yellow>Denna obegränsade butikens ägare har ändrats till {0}.
 bad-command-usage-detailed: '<red>Bad command arguments! Accepts the following parameters: <gray>{0}'
 thats-not-a-number: <red>Ogiltig siffra
@@ -25,10 +25,10 @@ tabcomplete:
   shop-id: '[shop id]'
   currency: '[valutans namn]'
   percentage: '[percentage%]'
-  add: 'add'
-  remove: 'remove'
-  clear: 'clear'
-  clearall: 'clearall'
+  add: 'lägg till'
+  remove: 'ta bort'
+  clear: 'rensa'
+  clearall: 'rensa allt'
   shops: 'shops'
   tagged: 'tagged'
   purge: 'purge'
@@ -363,6 +363,8 @@ support-disable-reason:
 supertool-is-disabled: <red>Superredskapet är inaktiverat. Du kan inte förstöra någon butik.
 unknown-owner: Okänd
 restricted-prices: '<red>Begränsat pris för {0}: Minst {1}, högst {2}'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <green>Butiken är {0} block från dig.
 owner-bypass-check: <yellow>Ignorerade alla checkar. Bytet lyckades! (Du är nu butiksägaren!)
 april-rick-and-roll-easter-egg: "<hover:show_text:'Click to open in browser for time limited rewards!'><click:open_url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ'><green>Click here to acquire your time limited rewards that provided by QuickShop-Hikari developer!</green></click></hover>"
@@ -384,6 +386,10 @@ signs:
   selling: Säljer {0}
   status-available: <green>
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>You kan inte handla med negativa belopp
 display-turn-on: <green>Lyckades aktivera butiksdisplayen.
 display-turn-off: <green>Lyckades aktivera butiksdisplayen.
@@ -397,7 +403,7 @@ backup-failed: Kan inte säkerhetskopiera databasen. Kontrollera konsolen för d
 shop-staff-cleared: <green>Lyckades ta bort all personal från din butik.
 price-too-high: <red>Butikspriset är för högt! Du kan inte skapa ett med ett pris högre än {0}.
 plugin-cancelled: '<red>Operationen avbruten, Orsak: {0}'
-player-sold-to-your-store: <green>{0} sålde {1} {2} till din butik.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <dark_purple>Din butik vid {0}, {1}, {2} har fått slut på {3}!
 how-many-buy: <green>Ange i chatten, hur många du vill <aqua>KÖPA<green>. Du kan köpa <yellow>{0}<green>. Ange <aqua>{1}<green> för att köpa alla.
 language-info-panel:
@@ -770,6 +776,8 @@ transfer-rejected-fromside: <red>Player <aqua>{0}</aqua> rejected your shop tran
 transfer-rejected-toside: <red>You rejected <aqua>{0}</aqua>'s shop transfer request.
 transfer-no-pending-operation: <red>You don't have pending transfer request yet.
 transfer-no-self: <red>You can't transfer your shops to yourself.
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>The sum of all benefits cannot be greater than or equal to 100%.
 benefit-exists: <red>Target player already in benefits list on this shop.
 benefit-removed: <red>Target player has been removed from shop benefits.
@@ -1625,6 +1633,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Custom Order</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1686,6 +1696,30 @@ gui:
       display: "<white>Back to Shop</white>"
   browse:
     title: "<dark_aqua>Market Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Owner: </green><yellow>{0}</yellow>"
@@ -1715,6 +1749,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1730,6 +1770,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

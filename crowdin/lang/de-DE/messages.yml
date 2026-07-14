@@ -36,7 +36,7 @@ tabcomplete:
 taxaccount-unset: <green>Das Steuerkonto dieses Shops folgt nun den globalen Servereinstellungen.
 blacklisted-item: <red>Dieses Item kann nicht verkauft werden, da es auf der Schwarzen Liste steht
 command-type-mismatch: <red>Dieser Befehl kann nur von <aqua>{0}<red> ausgeführt werden.
-server-crash-warning: '<red>Server kann nach Ausführung des /qs Reload-Befehls abstürzen, wenn Sie während des Laufens des Servers QuickShop-Plugin-Jar-Datei ersetzen/löschen.'
+server-crash-warning: '<red>Server kann nach Ausführung des /quickshop reload Befehls abstürzen, wenn Sie während des Laufens des Servers QuickShop-Plugin-Jar-Datei ersetzen/löschen.'
 you-cant-afford-to-change-price: Es kostet {0} um den Preis deines Shops zu ändern.
 safe-mode: <red>QuickShop ist im Sicherheitsmodus. Du kannst diesen Shop-Container nicht öffnen. Kontaktiere den Server Administrator um dieses Problem zu beheben.
 forbidden-vanilla-behavior: <red>Die Operation ist verboten da Sie nicht mit dem Vanilla verhalten übereinstimmt
@@ -114,7 +114,7 @@ pagination:
 tags:
   commands:
     tag: "<yellow>Verwalte deine Shop-Tags."
-    favorite: "<yellow>Toggle favorite on looked-at shop."
+    favorite: "<yellow>Favorit am angesehenen Shop umschalten."
     watch: "<yellow>Toggle watch on looked-at shop."
     avoid: "<yellow>Toggle avoid on looked-at shop."
   general:
@@ -363,6 +363,8 @@ support-disable-reason:
 supertool-is-disabled: <red>Super-Tool ist deaktiviert. Kann keine Shops zerstören.
 unknown-owner: Unbekannt
 restricted-prices: '<red>Eingeschränkter Preis für {0}: Mindestens {1}, maximal {2}'
+restricted-price-max: '<red>Restricted price for {0}: Max {1}'
+restricted-price-min: '<red>Restricted price for {0}: Min {1}'
 nearby-shop-this-way: <green>Shop ist {0} Blöcke von dir entfernt.
 owner-bypass-check: <yellow>Alle Prüfungen wurden umgangen. Handel erfolgreich! (Sie sind jetzt der Besitzer des Ladens!)
 april-rick-and-roll-easter-egg: "<hover:show_text:'Anklicken um im Browser zu öffnen für eine limitierte Belohnung!'><click:open_url:'https://www.youtube.com/watch?v?dQw4w9WgXcQ'><green>Klicke hier um eine limitierte Belohnung von den QuickShop-Hikari Entwicklern zu erhalten!</green></click></hover>"
@@ -384,6 +386,10 @@ signs:
   selling: Verkauft {0}
   status-available: <green>
   item-left: ''
+  item-duration: 'Dur: {0}'
+  item-level: 'Level: {0}'
+  splash-potion: "Splash"
+  linger-potion: "Lingering"
 negative-amount: <red>Du kannst keine negative Anzahl handeln
 display-turn-on: <green>Shop-Display erfolgreich aktiviert.
 display-turn-off: <green>Shop-Display erfolgreich deaktiviert.
@@ -397,7 +403,7 @@ backup-failed: Kann Datenbank nicht sichern. Überprüfe die Konsole für Detail
 shop-staff-cleared: <green>Alle Shopmitarbeiter erfolgreich von deinem Shop entfernt.
 price-too-high: <red>Der Shoppreis ist zu hoch! Du kannst keinen Shop mit einem Preis über {0} erstellen.
 plugin-cancelled: '<red>Vorgang abgebrochen, Grund: {0}'
-player-sold-to-your-store: <green>{0} hat {1} {2} bei deinem Shop verkauft.
+player-sold-to-your-store: <green>{0} sold {1} {2} to your shop for {3}.
 shop-out-of-stock: <dark_purple>Dein Shop bei den Koordinaten {0}, {1}, {2}, verfügt über keine {3} mehr!
 how-many-buy: <green>Schreib im Chat, wie viele du gerne <aqua>KAUFEN</aqua> willst. Du kannst <yellow>{0}<green> kaufen. Schreibe <aqua>{1}<green> um alle zu kaufen.
 language-info-panel:
@@ -768,6 +774,8 @@ transfer-rejected-fromside: <red>Spieler <aqua>{0}</aqua> hat deine Shop-Übertr
 transfer-rejected-toside: <red>Du hast <aqua>{0}</aqua>'s Shop-Übertragungsanfrage abgelehnt.
 transfer-no-pending-operation: <red>Du hast keine ausstehenden Transfer-Anfragen.
 transfer-no-self: <red>Du kannst deine Shops nicht an dich selbst übertragen.
+transfer-no-buy: <red>You can't transfer shops that are buy shops.
+transfer-failed-some: <red>Failed to transfer some of the shops as they're not eligible.
 benefit-overflow: <red>Die Summe aller Vorteile kann nicht grösser oder gleich 100% sein.
 benefit-exists: <red>Spieler ist bereits in der Vorteilsliste dieses Shops.
 benefit-removed: <red>Spieler wurde von Shop-Vorteilen entfernt.
@@ -1570,6 +1578,8 @@ gui:
     custom-amount:
       display: "<bold><blue>Benutzerdefinierte Bestellung</blue></bold>"
     quantity-button:
+      display-buy: "<green>Buy x{0}</green>"
+      display-sell: "<gold>Sell x{0}</gold>"
       lore:
         - "<yellow>{0}</yellow>"
   keeper:
@@ -1616,7 +1626,7 @@ gui:
         - "<gray>Klicke, um dein Shop zu löschen.</gray>"
         - "<dark_gray>Du kannst auch das Schild/die Truhe zerstören.</dark_gray>"
   staff:
-    title: "<dark_aqua>Staff Management</dark_aqua>"
+    title: "<dark_aqua>Staff Verwaltung</dark_aqua>"
     search:
       display: "<yellow>Suche: {0}</yellow>"
       lore:
@@ -1631,6 +1641,30 @@ gui:
       display: "<white>Zurück zum Shop</white>"
   browse:
     title: "<dark_aqua>Markt-Browser</dark_aqua>"
+    shop-list:
+      buying-label: "<#FFA500>Buying</#FFA500>"
+      selling-label: "<green>Selling</green>"
+      price-indicator:
+        average: "● Average"
+        selling:
+          great: "▼▼ Great Deal!"
+          good: "▼ Below Avg"
+          bad: "▲▲ Expensive"
+          worst: "▲ Above Avg"
+        buying:
+          great: "▲▲ Great Price!"
+          good: "▲ Above Avg"
+          bad: "▼▼ Low Offer"
+          worst: "▼▼ Below Avg"
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Owner: <white>{0}</white></gray>"
+        - "<gray>Type: {1}</gray>"
+        - "<gray>Price: {2}</gray>"
+        - "<gray><aqua>{3}</aqua></gray>"
+        - "<gray>Location: <white>{4}</white></gray>"
+        - "<dark_gray>{5}</dark_gray>"
+      teleport: "<newline><yellow>Click to teleport</yellow>"
     shop-item:
       lore:
         - "<green>Besitzer: </green><yellow>{0}</yellow>"
@@ -1660,6 +1694,12 @@ gui:
       lore:
         - "<gray>Left-click to search for items</gray>"
         - "<gray>Right-click to clear search</gray>"
+    search-item:
+      display: "<yellow>{0}</yellow>"
+      lore:
+        - "<gray>Showing: {0}</gray>"
+        - "<gray>Shops: <white>{1}</white></gray>"
+        - "<gray>Average price: <gold>{2}</gold></gray>"
     sort:
       display: "<green>Sort: {0}</green>"
       lore:
@@ -1675,6 +1715,9 @@ gui:
       all: "All"
       selling: "Selling"
       buying: "Buying"
+      all-indicator: "<white>All Shops</white>"
+      selling-indicator: "<green>Selling Shops</green>"
+      buying-indicator: "<#FFA500>Buying Shops</#FFA500>"
     stock-filter:
       display: "<gold>In Stock Only: {0}</gold>"
       lore:

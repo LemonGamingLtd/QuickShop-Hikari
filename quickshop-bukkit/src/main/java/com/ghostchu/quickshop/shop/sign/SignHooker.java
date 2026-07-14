@@ -3,7 +3,6 @@ package com.ghostchu.quickshop.shop.sign;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.listener.AbstractQSListener;
-import com.ghostchu.quickshop.util.Util;
 import com.ghostchu.quickshop.util.logger.Log;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
@@ -16,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CompletableFuture;
 
 public class SignHooker extends AbstractQSListener {
 
@@ -95,16 +96,26 @@ public class SignHooker extends AbstractQSListener {
 
   public void updatePerPlayerShopSign(final Player player, final Location location, final Shop shop) {
 
-    Util.ensureThread(false);
     if(!shop.isLoaded()) {
       return;
     }
     Log.debug("Updating per-player packet sign: Player=" + player.getName() + ", Location=" + location + ", Shop=" + shop.getShopId());
-    final List<Component> lines = shop.getSignText(plugin.getTextManager().findRelativeLanguages(player));
-    for(final Sign sign : shop.getSigns()) {
 
-      plugin.platform().sendSignTextChange(player, sign, plugin.getConfig().getBoolean("shop.sign-glowing"), lines);
-    }
+
+    final Location loc = shop.bukkitLocation().clone();
+    final CompletableFuture<List<Component>> textCompletable = shop.getSignTextAsync(plugin.getTextManager().findRelativeLanguages(player));
+
+    textCompletable.thenAccept(lines ->QuickShop.folia().getScheduler().runAtLocation(loc, (consumer)->{
+
+      if(!shop.isValid()) {
+
+        return;
+      }
+      for(final Sign sign : shop.getSigns()) {
+
+        plugin.platform().sendSignTextChange(player, sign, sign.getSide(Side.FRONT).isGlowingText(), sign.getSide(Side.FRONT).getColor(), lines);
+      }
+    }));
   }
 
   private void startScrollingTask(@NotNull final Player player) {
@@ -329,7 +340,7 @@ public class SignHooker extends AbstractQSListener {
     try {
       //noinspection ConstantValue
       exists = World.class.getMethod("getPlayersSeeingChunk", int.class, int.class) != null;
-    } catch (ReflectiveOperationException ignored) {}
+    } catch (final ReflectiveOperationException ignored) {}
 
     CAN_USE_PLAYERS_SEEING_CHUNK = exists;
   }

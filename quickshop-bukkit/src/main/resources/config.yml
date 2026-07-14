@@ -11,7 +11,7 @@
 
 # Internal configuration version.
 # Do not change this unless QuickShop support instructs you to.
-config-version: 1040
+config-version: 1046
 
 # Default language used by the plugin.
 # Set to "default" to use the player's Minecraft client language automatically.
@@ -282,6 +282,7 @@ database:
   # Database password (only required when mysql is true)
   password: passwd
   # Table prefix. Set to "none" to remove prefix.
+  # Each server must use a unique table prefix. Multiple servers cannot share the same table prefix.
   prefix: "qs_"
   # Use SSL for database connections (only required when mysql is true)
   usessl: false
@@ -348,7 +349,6 @@ limits:
 shop-blocks:
   - CHEST
   - TRAPPED_CHEST
-  - ENDER_CHEST
   - BARREL
 
 shop:
@@ -363,6 +363,9 @@ shop:
 
   # Skip confirmation prompts for destructive commands (like remove).
   skip-command-confirmation: false
+
+  # Disable showing unlimited shops in /qs browse menu.
+  disable-unlimited-browse: false
 
   # Control panel components used when not using the GUI-based control panel.
   control-panel:
@@ -379,6 +382,7 @@ shop:
     - remove
 
   # Shop Sign Layout
+  # Item level = level for enchantment or duration for potions.
   layout:
 
     # Layout for BUYING shops.
@@ -421,6 +425,9 @@ shop:
 
   # Disable the Super Tool (golden axe used by creative players to break shops).
   disable-super-tool: false
+
+  # Disable the ability to transfer buy shops using the transfer and transferall commands.
+  disable-buy-transfer: false
 
   # Allow shop owners to break only the sign (so it can be replaced).
   # WARNING: May cause sign duplication if auto-sign is enabled.
@@ -470,8 +477,7 @@ shop:
   # Display type:
   # 2 = Virtual Item (recommended; reduces entities)
   # Requires ProtocolLib or PacketEvents (feature disables if missing).
-  #
-  # Note: ArmorStand mode is outdated and cannot be used.
+  # 3 = Display Entity (non-packet-based; shouldn't cause lag, but never know without more data 1.19.4+)
   display-type: 2
 
   # Preferred protocol implementation for virtual displays:
@@ -515,6 +521,80 @@ shop:
     # Positive values move south, negative values move north.
     # Supports decimal values.
     z: 0.5
+
+  # Display rotation settings. This is only used for display-type 3.
+  display-rotation:
+
+    # Rotation angle in degrees.
+    degrees: 0.0
+
+    # X-component of the rotation axis.
+    x: 0.0
+
+    # Y-component of the rotation axis.
+    y: 1.0
+
+    # Z-component of the rotation axis.
+    z: 0.0
+
+  # The scale of the display item. This is only used for display-type 3.
+  display-scale:
+
+    x: 1.25
+    y: 1.25
+    z: 1.25
+
+  # This spawns a separate fake entity that displays shop information.
+  text-display:
+
+    # Should the text display be enabled?
+    enabled: false
+
+    # Text Display view range
+    range-blocks: 3
+
+    # Height above the item
+    y-offset: 0.8
+
+    # Background color (32-bit ARGB)
+    background-color: 1073741824
+
+    # The line width of the text display.
+    line-width: 200
+
+    # Text opacity for the display. -1 is full opaque, values accepted are 0-255.
+    # Note: values 0 - 25 are considered invisible by the rendering engine.
+    text-opacity: -1
+
+    # Should the text display text be see through?
+    see-through: false
+
+    # Text shadow configurations
+    shadow:
+
+      # Should text shadows be enabled?
+      enabled: true
+
+    # The scale of the text display.
+    # The acceptable values are from 0.0 to 1.0.
+    scale:
+
+      x: 0.5
+      y: 0.5
+      z: 0.5
+
+    # <item_name> is replaced with the item name.
+    # <price_alone> is replaced with the item price.
+    # <amount> is replaced with the item amount.
+    # <price_amount> is replaced with the item price per amount.
+    # <owner> is replaced with the shop owner's name.
+    # <type> is replaced with the shop type (BUYING/SELLING).
+    # <status> is replaced with the shop status (ACTIVE/FROZEN).
+    lines:
+    - "<green><item_name></green>"
+    - "<gray><owner></gray>"
+    - "<gray><type></gray>"
+    - "<gold><price_amount></gold>"
 
   # [BETA] Per-player shop sign translations (i18n).
   # Sends an extra sign packet so each player sees text in their own locale.
@@ -590,9 +670,15 @@ shop:
   # NOTE: Only one enchantment is shown, chosen randomly.
   use-enchantment-for-enchanted-book: false
 
+  # Whether or not to use roman numerals for enchantment number displays or not.
+  use-roman-numeral-for-enchantments: true
+
   # Show one potion effect name on the sign (instead of "Potion").
   # NOTE: Only one effect is shown, chosen randomly.
   use-effect-for-potion-item: false
+
+  # Show song name on the sign (instead of "Music Disc").
+  use-song-for-disc-item: false
 
   # Worlds where shop creation is allowed.
   # If not empty, only worlds in this list can create shops.
@@ -871,6 +957,7 @@ protect:
   dropper: true
   dropper-owner-exclude: false
   entity: true
+  oxidation: true
 
 # Backup Policy
 # Controls when QuickShop creates automatic backups.
