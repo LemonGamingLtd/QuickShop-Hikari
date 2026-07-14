@@ -3,6 +3,7 @@ package com.ghostchu.quickshop.shop.sign;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.listener.AbstractQSListener;
+import com.ghostchu.quickshop.util.Util;
 import com.ghostchu.quickshop.util.logger.Log;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
@@ -10,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Chunk;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -173,7 +175,7 @@ public class SignHooker extends AbstractQSListener {
 
     final int offset = scrollOffset(player, shop, sign, itemName);
     lines.set(itemLine, LegacyComponentSerializer.legacySection().deserialize(scrollWindow(itemNameComponent, offset)));
-    plugin.platform().sendSignTextChange(player, sign, plugin.getConfig().getBoolean("shop.sign-glowing"), lines);
+    plugin.platform().sendSignTextChange(player, sign, plugin.getConfig().getBoolean("shop.sign-glowing"), DyeColor.BLACK, lines);
   }
 
   private void restorePreviousScrollingSign(@NotNull final Player player) {
