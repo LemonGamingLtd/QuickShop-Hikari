@@ -11,6 +11,7 @@ import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.DWandsChec
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.ExcellentCratesCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.NexoCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.PyroFishingCheck;
+import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SeasonalItemsCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SilkSpawnerCheck;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -55,6 +56,10 @@ public final class Main extends CompatibilityModule implements Listener {
 
     if(Bukkit.getPluginManager().isPluginEnabled("DWands")) {
       checks.put("dwands", new DWandsCheck());
+    }
+
+    if(Bukkit.getPluginManager().isPluginEnabled("LGReclaim")) {
+      checks.put("lgreclaim", new SeasonalItemsCheck());
     }
   }
 
