@@ -90,7 +90,6 @@ import com.ghostchu.quickshop.util.FastPlayerFinder;
 import com.ghostchu.quickshop.util.ItemMarker;
 import com.ghostchu.quickshop.util.MsgUtil;
 import com.ghostchu.quickshop.util.PermissionChecker;
-import com.ghostchu.quickshop.util.ShopUtil;
 import com.ghostchu.quickshop.util.Util;
 import com.ghostchu.quickshop.util.envcheck.CheckResult;
 import com.ghostchu.quickshop.util.envcheck.EnvCheckEntry;
@@ -118,8 +117,6 @@ import com.ghostchu.quickshop.watcher.UpdateWatcher;
 import com.ghostchu.simplereloadlib.ReloadManager;
 import com.ghostchu.simplereloadlib.ReloadResult;
 import com.ghostchu.simplereloadlib.Reloadable;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.tcoded.folialib.FoliaLib;
 import com.vdurmont.semver4j.Semver;
 import dev.dejvokep.boostedyaml.YamlDocument;
@@ -189,11 +186,6 @@ public class QuickShop implements QuickShopAPI, Reloadable {
   private final Map<String, Hook> hooks = new HashMap<>();
 
   public static final Queue<UUID> inShop = new ConcurrentLinkedQueue<>();
-
-  public static final Cache<UUID, ShopUtil.PendingTransferTask> taskCache = CacheBuilder
-          .newBuilder()
-          .expireAfterWrite(60, TimeUnit.SECONDS)
-          .build();
 
   /**
    * If running environment test

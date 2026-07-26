@@ -25,7 +25,6 @@ import com.ghostchu.quickshop.config.GuiConfig;
 import com.ghostchu.quickshop.menu.shared.ClearSearchAction;
 import com.ghostchu.quickshop.menu.shared.GuiChatAction;
 import com.ghostchu.quickshop.menu.shared.QuickShopPage;
-import com.ghostchu.quickshop.util.ShopUtil;
 import com.ghostchu.quickshop.util.Util;
 import net.tnemc.item.providers.SkullProfile;
 import net.tnemc.menu.core.builder.IconBuilder;
@@ -263,21 +262,6 @@ public class StaffSelectionPage {
                                                  viewerPlayer.sendMessage(guiMessage("staff.confirm-remove", name));
                                                  return false;
                                                }, guiMessage("staff.confirm-remove", name), true, ActionType.LEFT_CLICK))  // Reopen to refresh staff list
-                                               .withActions(new GuiChatAction((message)->{
-                                                 if(!message.isEmpty()) {
-                                                   if(message.equalsIgnoreCase("confirm")) {
-                                                     if(shop.get().playerAuthorize(id, BuiltInShopPermission.OWNERSHIP_TRANSFER)) {
-                                                       Util.regionThread(shop.get().bukkitLocation(), ()->ShopUtil.transferRequest(id, uuid, name, shop.get()));
-                                                     } else {
-                                                       QuickShop.getInstance().text().of(id, "no-permission").send();
-                                                     }
-                                                     return true;
-                                                   }
-                                                   return true;
-                                                 }
-                                                 viewerPlayer.sendMessage(guiMessage("staff.confirm-transfer", name));
-                                                 return false;
-                                               }, guiMessage("staff.confirm-transfer", name), false, ActionType.RIGHT_CLICK))  // Don't reopen after transfer
                                                .withSlot(listStartSlot + (i - start))
                                                .build());
 
