@@ -65,6 +65,12 @@ dependencyResolutionManagement {
         maven("https://repo.william278.net/releases")
         maven("https://repo.xenondevs.xyz/releases")
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://repo.lemongaming.ltd/repository/maven-public/") {
+            credentials {
+                username = providers.gradleProperty("lgNexusUser").get()
+                password = providers.gradleProperty("lgNexusPass").get()
+            }
+        }
     }
 }
 

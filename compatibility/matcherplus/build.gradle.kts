@@ -28,6 +28,7 @@ dependencies {
     }
     implementation("com.github.Slimefun:Slimefun4:RC-37")
     compileOnly("xyz.xenondevs.nova:nova-api:0.18")
+    compileOnly("de.tr7zw:item-nbt-api-plugin:2.15.0")
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>().configureEach {

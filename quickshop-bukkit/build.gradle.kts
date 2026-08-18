@@ -86,6 +86,10 @@ dependencies {
     }
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.12.0", worldeditExcludes)
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.17", worldeditExcludes)
+
+    compileOnly("ltd.lemongaming:lg-core-spigot-plugin:3.19.1")
+    compileOnly("ltd.lemongaming:LGEnchants:1.0.4")
+    compileOnly("ltd.lemongaming:DStoreCurrency:2.6.2")
 }
 
 sourceSets {
