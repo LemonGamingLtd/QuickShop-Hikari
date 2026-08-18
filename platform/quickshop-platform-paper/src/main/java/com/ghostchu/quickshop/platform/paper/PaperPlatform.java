@@ -150,7 +150,6 @@ public class PaperPlatform implements Platform {
 
   @Override
   public @NotNull Component getTranslation(@NotNull final Enchantment enchantment) {
-
     return Component.translatable(getTranslationKey(enchantment));
   }
 

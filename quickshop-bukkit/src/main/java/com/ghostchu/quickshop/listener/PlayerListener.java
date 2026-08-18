@@ -17,6 +17,7 @@ import com.ghostchu.quickshop.util.logger.Log;
 import com.ghostchu.simplereloadlib.ReloadResult;
 import com.ghostchu.simplereloadlib.ReloadStatus;
 import net.tnemc.menu.core.manager.MenuManager;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,6 +48,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -274,6 +276,7 @@ public class PlayerListener extends AbstractQSListener {
     if(plugin.getDisplayManager() instanceof final DisplayEntityItemManager displayEntityItemManager) {
 
       displayEntityItemManager.addPlayer(e.getPlayer());
+
     }
   }
 

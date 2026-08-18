@@ -16,7 +16,7 @@ not-looking-at-valid-shop-block: ไม่พบบล็อกสำหรั�
 shop-removed-cause-ongoing-fee: <red>ร้านของคุณที่ {0} โดนปิดเพราะคุณมีเงินไม่พอที่จะเปิดต่อได้
 tabcomplete:
   amount: 'จำนวน'
-  item: '[item]'
+  item: ''
   price: '[price]'
   name: '[name]'
   range: '[range]'
@@ -56,7 +56,7 @@ quick-fill:
   hover-arg-filled:
     - '<yellow>ชื่อ: <aqua>{name}'
     - '<yellow>Owner: <aqua>{owner}'
-    - '<yellow>Type: <aqua>{type}'
+    - '<yellow>ประเภท:<aqua>{type}'
     - '<yellow>Price: <aqua>{price}'
     - '<yellow>ของ: <aqua>{item}'
     - '<yellow>Location: <aqua>{location}'
@@ -547,6 +547,7 @@ command:
     lookup: <yellow>Manage lookup-able items table
     database: <yellow>View and maintain QuickShop database
     benefit: <yellow>Settings of divide benefits between shop owner and other players
+    benefitall: <yellow>Settings of divide benefits between shop owner and other players for all shops you own.
     browse: <yellow>Browse shops that exist in this server.
     tag: <yellow>Add, remove or query tags of a shop
     suggestprice: <yellow>Suggest a recommend price for looking shop, based on other shops

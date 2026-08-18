@@ -4,19 +4,17 @@ import com.ghostchu.quickshop.api.shop.Info;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.ShopAction;
 import com.ghostchu.quickshop.common.util.JsonUtil;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 /**
  * A class contains shop's infomations
  */
-@EqualsAndHashCode
-@ToString
 public class SimpleInfo implements Info {
 
   private final Block last;
@@ -75,7 +73,8 @@ public class SimpleInfo implements Info {
    * @return ShopAction action, Get shop action.
    */
   @Override
-  public @NotNull ShopAction getAction() {
+  @NotNull
+  public ShopAction getAction() {
 
     return this.action;
   }
@@ -90,7 +89,8 @@ public class SimpleInfo implements Info {
    * @return ItemStack iStack, Get Shop's selling/buying item's ItemStack.
    */
   @Override
-  public @NotNull ItemStack getItem() {
+  @NotNull
+  public ItemStack getItem() {
 
     return this.item;
   }
@@ -100,7 +100,8 @@ public class SimpleInfo implements Info {
    * @return Location loc, Get shop's location,
    */
   @Override
-  public @NotNull Location getLocation() {
+  @NotNull
+  public Location getLocation() {
 
     return this.loc;
   }
@@ -109,7 +110,8 @@ public class SimpleInfo implements Info {
    * @return Block signBlock, Get block of shop's sign, may return the null.
    */
   @Override
-  public @Nullable Block getSignBlock() {
+  @Nullable
+  public Block getSignBlock() {
 
     return this.last;
   }
@@ -142,4 +144,32 @@ public class SimpleInfo implements Info {
     this.preselectedCurrency = preselectedCurrency;
   }
 
+  @Override
+  public boolean equals(final Object o) {
+
+    if(o == this) return true;
+    if(!(o instanceof SimpleInfo)) return false;
+    final SimpleInfo other = (SimpleInfo)o;
+    return this.dirty == other.dirty
+           && this.bypass == other.bypass
+           && Objects.equals(this.last, other.last)
+           && Objects.equals(this.loc, other.loc)
+           && Objects.equals(this.getAction(), other.getAction())
+           && Objects.equals(this.getItem(), other.getItem())
+           && Objects.equals(this.shop, other.shop)
+           && Objects.equals(this.shopData, other.shopData)
+           && Objects.equals(this.preselectedCurrency, other.preselectedCurrency);
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(this.dirty, this.bypass, this.last, this.loc, this.getAction(), this.getItem(), this.shop, this.shopData);
+  }
+
+  @Override
+  public String toString() {
+
+    return "SimpleInfo(last=" + this.last + ", loc=" + this.loc + ", dirty=" + this.dirty + ", bypass=" + this.bypass + ", action=" + this.getAction() + ", item=" + this.getItem() + ", shop=" + this.shop + ", shopData=" + this.shopData + ", preselectedCurrency=" + this.preselectedCurrency + ")";
+  }
 }

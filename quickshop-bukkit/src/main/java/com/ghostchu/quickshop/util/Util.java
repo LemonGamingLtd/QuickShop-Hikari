@@ -106,9 +106,7 @@ public class Util {
   public static final int VANILLA_MAX_STACK_SIZE = 99;
   private static Yaml yaml = null;
   private static Boolean devMode = null;
-  @Setter
   private static QuickShop plugin;
-  @Getter
   @Nullable
   private static DyeColor dyeColor = null;
 
@@ -162,7 +160,8 @@ public class Util {
     return location.getBlockX() + ";" + location.getBlockY() + ";" + location.getBlockZ();
   }
 
-  public static Location locationFromPDCString(final World world, final @Nullable String locationString) {
+  public static Location locationFromPDCString(final World world, @Nullable final String locationString) {
+
     if(locationString == null) {
       return null;
     }
@@ -177,7 +176,7 @@ public class Util {
   public static void playClickSound(@NotNull final Player player) {
 
     if(plugin.getConfig().getBoolean("effect.sound.onclick")) {
-      player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_FAIL, 80.f, 1.0f);
+      player.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_FAIL, 80.0F, 1.0F);
     }
   }
 
@@ -275,8 +274,7 @@ public class Util {
     if(plugin.getConfig().contains(config + ".dust.color")) {
 
       final Color color = parseColor(plugin.getConfig().getString(config + ".dust.color"));
-      final float scale = (float) plugin.getConfig().getFloat(config + ".dust.scale", 1.0f);
-
+      final float scale = (float)plugin.getConfig().getFloat(config + ".dust.scale", 1.0F);
       builder.color(color, scale);
     }
 
@@ -284,8 +282,7 @@ public class Util {
 
       final Color from = parseColor(plugin.getConfig().getString(config + ".dust-transition.from"));
       final Color to = parseColor(plugin.getConfig().getString(config + ".dust-transition.to"));
-      final float scale = (float) plugin.getConfig().getFloat(config + ".dust-transition.scale", 1.0f);
-
+      final float scale = (float)plugin.getConfig().getFloat(config + ".dust-transition.scale", 1.0F);
       builder.colorTransition(from, to, scale);
     }
 
@@ -319,6 +316,7 @@ public class Util {
   }
 
   private static Color parseColor(String hex) {
+
     if(hex == null) return Color.WHITE;
 
     hex = hex.replace("#", "");
@@ -602,8 +600,7 @@ public class Util {
       return 0;
     }
     final ItemMatcher matcher = plugin.getItemMatcher();
-    if(inv instanceof final CountableInventoryWrapper ciw) {
-
+    if(inv instanceof CountableInventoryWrapper ciw) {
       return ciw.countItem(input->matcher.matches(item, input));
     } else {
       int items = 0;
@@ -633,7 +630,7 @@ public class Util {
     if(inv == null) {
       return 0;
     }
-    if(inv instanceof final CountableInventoryWrapper ciw) {
+    if(inv instanceof CountableInventoryWrapper ciw) {
       return ciw.countItem(shop::matches);
     } else {
       int items = 0;
@@ -663,8 +660,7 @@ public class Util {
     if(inv == null) {
       return 0;
     }
-
-    if(inv instanceof final CountableInventoryWrapper ciw) {
+    if(inv instanceof CountableInventoryWrapper ciw) {
       return ciw.countSpace(shop::matches);
     } else {
       final ItemStack item = shop.getItem();
@@ -718,7 +714,7 @@ public class Util {
       return 0;
     }
     final ItemMatcher matcher = plugin.getItemMatcher();
-    if(inv instanceof final CountableInventoryWrapper ciw) {
+    if(inv instanceof CountableInventoryWrapper ciw) {
       return ciw.countSpace(input->matcher.matches(item, input));
     } else {
       int space = 0;
@@ -829,7 +825,6 @@ public class Util {
       yamlConfiguration.loadFromString(config);
       return yamlConfiguration.getItemStack("item");
     } catch(final Throwable th) {
-
       QuickShop.getInstance().logger().warn("Failed load shop data, because target config can't deserialize the ItemStack", th);
       Log.debug("Failed to load data to the ItemStack: " + config);
       return null;
@@ -947,6 +942,7 @@ public class Util {
   }
 
   public static Component getTextDisplay(@NotNull final Shop shop, @NotNull final ItemStack itemStack) {
+
     if(!plugin.getConfig().getBoolean("shop.text-display.enabled", false)) {
       return Component.empty();
     }
@@ -985,8 +981,7 @@ public class Util {
         if (!component.appliesTo(line)) {
           continue;
         }
-
-        if (component instanceof final ConditionalRenderComponent conditionalComponent && conditionalComponent.isFullLine(shop)) {
+        if(component instanceof ConditionalRenderComponent conditionalComponent && conditionalComponent.isFullLine(shop)) {
           lineComponent = conditionalComponent.render(shop, itemStack, locale);
           break;
         }
@@ -1019,7 +1014,7 @@ public class Util {
         result = plugin.platform().getTranslation(itemStack);
       } catch(final Throwable th) {
         result = MsgUtil.setHandleFailedHover(null, Component.text(itemStack.getType().getKey().toString()));
-        plugin.logger().warn("Failed to handle translation for ItemStack {}", Util.serialize(itemStack), th);
+        plugin.logger().warn("Failed to handle translation for ItemStack {}", itemStack.getType().getKey().asString(), th);
       }
     }
     return result;
@@ -1041,7 +1036,7 @@ public class Util {
 
     final ItemMeta meta = itemStack.getItemMeta();
     if(useEnchantmentForEnchantedBook() && itemStack.getType() == Material.ENCHANTED_BOOK) {
-      if(meta instanceof final EnchantmentStorageMeta enchantmentStorageMeta && enchantmentStorageMeta.hasStoredEnchants()) {
+      if(meta instanceof EnchantmentStorageMeta enchantmentStorageMeta && enchantmentStorageMeta.hasStoredEnchants()) {
         return getFirstEnchantmentName(enchantmentStorageMeta);
       }
     }
@@ -1147,7 +1142,7 @@ public class Util {
     }
 
     final ItemMeta meta = itemStack.getItemMeta();
-    if(meta instanceof final EnchantmentStorageMeta enchantmentStorageMeta && enchantmentStorageMeta.hasStoredEnchants()) {
+    if(meta instanceof EnchantmentStorageMeta enchantmentStorageMeta && enchantmentStorageMeta.hasStoredEnchants()) {
       for(final Map.Entry<Enchantment, Integer> entry : enchantmentStorageMeta.getStoredEnchants().entrySet()) {
         final Component name = enchantmentDataToComponent(entry.getKey(), entry.getValue());
         enchants.add(name);
@@ -1197,8 +1192,7 @@ public class Util {
   public static Entry<Enchantment, Integer> getFirstEnchantment(@NotNull final ItemStack itemStack) {
 
     final ItemMeta meta = itemStack.getItemMeta();
-    if(meta instanceof final EnchantmentStorageMeta enchantmentStorageMeta && enchantmentStorageMeta.hasStoredEnchants()) {
-
+    if(meta instanceof EnchantmentStorageMeta enchantmentStorageMeta && enchantmentStorageMeta.hasStoredEnchants()) {
       return enchantmentStorageMeta.getStoredEnchants().entrySet().stream().findFirst().orElse(null);
     } else {
 
@@ -1260,21 +1254,24 @@ public class Util {
   public static PotionEffect getFirstPotionEffect(@NotNull final ItemStack item) {
 
     final ItemMeta meta = item.getItemMeta();
-    if(meta instanceof final PotionMeta potion && potion.getBasePotionType() != null && !potion.getBasePotionType().getPotionEffects().isEmpty()) {
+    if(meta instanceof PotionMeta potion && potion.getBasePotionType() != null && !potion.getBasePotionType().getPotionEffects().isEmpty()) {
       return potion.getBasePotionType().getPotionEffects().getFirst();
     }
     return null;
   }
 
   public static Component getPotionLevel(final PotionEffect effect) {
+
     return Component.text(RomanNumber.toRoman(effect.getAmplifier() + 1));
   }
 
   public static String getPotionDuration(final PotionEffect effect) {
+
     return formatDuration(effect);
   }
 
   public static String formatDuration(final PotionEffect effect) {
+
     if(effect.isInfinite()) {
 
       return "∞";
@@ -1297,8 +1294,8 @@ public class Util {
   }
 
   /**
-   * Waits for the completion of a given {@link CompletableFuture} within a specified timeout period.
-   * Throws appropriate exceptions if the future times out, encounters an execution error,
+   * Waits for the completion of a given {@link CompletableFuture} within a specified timeout
+   * period. Throws appropriate exceptions if the future times out, encounters an execution error,
    * or the thread is interrupted.
    *
    * @param <T> The type of the result returned by the CompletableFuture.
@@ -1306,9 +1303,12 @@ public class Util {
    * @param timeout The maximum time to wait for the future to complete.
    * @param unit The time unit of the timeout argument.
    * @param description A description of the future operation, used for exception messages.
+   *
    * @return The result of the completed CompletableFuture.
+   *
    * @throws IllegalStateException If the provided future is null.
-   * @throws RuntimeException If the future times out, is interrupted, or encounters an execution error.
+   * @throws RuntimeException      If the future times out, is interrupted, or encounters an
+   *                               execution error.
    */
   public static <T> T waitForFuture(final CompletableFuture<T> future, final long timeout, final TimeUnit unit, final String description) throws RuntimeException {
 
@@ -1326,8 +1326,7 @@ public class Util {
 
       //Unwrap the cause so logs are more useful
       final Throwable cause = (e.getCause() != null)? e.getCause() : e;
-      if(cause instanceof final RuntimeException re) {
-
+      if(cause instanceof RuntimeException re) {
         throw re;
       }
       throw new RuntimeException("Error while waiting for " + description, cause);
@@ -1347,7 +1346,7 @@ public class Util {
   public static List<String> getPlayerList(final CommandSender sender) {
 
     final List<String> tabList = new ArrayList<>();
-    if(sender instanceof final Player player) {
+    if(sender instanceof Player player) {
       tabList.addAll(Bukkit.getOnlinePlayers().stream().filter(player::canSee).map(Player::getName).toList());
     } else {
       tabList.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
@@ -1402,7 +1401,7 @@ public class Util {
   public static Block getSecondHalf(@NotNull final Block block) {
 
     final BlockData blockData = block.getBlockData();
-    if(!(blockData instanceof final org.bukkit.block.data.type.Chest chest)) {
+    if(!(blockData instanceof org.bukkit.block.data.type.Chest chest)) {
       return null;
     }
     if(!isDoubleChest(chest)) {
@@ -1415,7 +1414,7 @@ public class Util {
 
   public static boolean isDoubleChest(@Nullable final BlockData blockData) {
 
-    if(!(blockData instanceof final org.bukkit.block.data.type.Chest chestBlockData)) {
+    if(!(blockData instanceof org.bukkit.block.data.type.Chest chestBlockData)) {
       return false;
     }
     return chestBlockData.getType() != org.bukkit.block.data.type.Chest.Type.SINGLE;
@@ -1450,7 +1449,7 @@ public class Util {
   @NotNull
   public static UUID getSenderUniqueId(@Nullable final CommandSender sender) {
 
-    if(sender instanceof final OfflinePlayer offlinePlayer) {
+    if(sender instanceof OfflinePlayer offlinePlayer) {
       return offlinePlayer.getUniqueId();
     }
     return CommonUtil.getNilUniqueId();
@@ -1775,7 +1774,7 @@ public class Util {
   public static Block getAttached(@NotNull final Block b) {
 
     final BlockData blockData = b.getBlockData();
-    if(blockData instanceof final Directional directional) {
+    if(blockData instanceof Directional directional) {
       return b.getRelative(directional.getFacing().getOppositeFace());
     } else {
       return null;
@@ -1783,8 +1782,8 @@ public class Util {
   }
 
   /**
-   * Creates a byte representing a set of flags based on the provided boolean parameters.
-   * Each parameter corresponds to a specific bit in the byte.
+   * Creates a byte representing a set of flags based on the provided boolean parameters. Each
+   * parameter corresponds to a specific bit in the byte.
    *
    * @return a byte where each bit represents a corresponding flag set by the input parameters.
    */
@@ -1798,15 +1797,15 @@ public class Util {
     byte flags = 0;
 
     if (hasShadow) {
-      flags |= 0x01;
+      flags |= 1;
     }
 
     if (seeThrough) {
-      flags |= 0x02;
+      flags |= 2;
     }
 
     if (defaultBackground) {
-      flags |= 0x04;
+      flags |= 4;
     }
 
     return flags;
@@ -1831,7 +1830,8 @@ public class Util {
    * @return The location the player should be facing to have their crosshairs on the location
    * lookAt Kudos to bergerkiller for most of this function
    */
-  public static @NotNull Location lookAt(@NotNull Location loc, @NotNull final Location lookat) {
+  @NotNull
+  public static Location lookAt(@NotNull Location loc, @NotNull final Location lookat) {
     // Clone the loc to prevent applied changes to the input loc
     loc = loc.clone();
     // Values of change in distance (make it relative)
@@ -1855,9 +1855,9 @@ public class Util {
     final float pitch = (float)-Math.atan(dy / dxz);
     // Set values, convert to degrees
     // Minecraft yaw (vertical) angles are inverted (negative)
-    loc.setYaw(-loc.getYaw() * 180f / (float)Math.PI + 360);
+    loc.setYaw(-loc.getYaw() * 180.0F / (float)Math.PI + 360);
     // But pitch angles are normal
-    loc.setPitch(pitch * 180f / (float)Math.PI);
+    loc.setPitch(pitch * 180.0F / (float)Math.PI);
     return loc;
   }
 
@@ -1916,5 +1916,16 @@ public class Util {
     }
 
     return Bukkit.getServer().spigot().getConfig().getBoolean("settings.bungeecord");
+  }
+
+  public static void setPlugin(final QuickShop plugin) {
+
+    Util.plugin = plugin;
+  }
+
+  @Nullable
+  public static DyeColor getDyeColor() {
+
+    return Util.dyeColor;
   }
 }

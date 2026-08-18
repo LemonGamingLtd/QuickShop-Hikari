@@ -179,7 +179,7 @@ menu:
   price-per-stack: <green>Prijs per <yellow>{2}x {0} - {1}
   stored-enchants: <dark_purple>Opgeslagen Betoveringen
   item-holochat-error: <red>[Error]
-  this-shop-is-selling: <green>Deze winkel i<aqua>VERKOOPT</aqua> items.
+  this-shop-is-selling: <green>Deze winkel <aqua>VERKOOPT</aqua> items.
   this-shop-is-buying: <green>Deze winkel <light_purple>koopt<green> items.
   this-shop-is-frozen: <blue>FROZEN</blue>
   this-shop-is-active: <aqua>ACTIVE</aqua>
@@ -547,6 +547,7 @@ command:
     lookup: <yellow>Beheer tabel met opzoekbare items
     database: <yellow>View and maintain QuickShop database
     benefit: <yellow>Instellingen voor het verdelen van voordelen tussen winkeleigenaar en andere spelers
+    benefitall: <yellow>Settings of divide benefits between shop owner and other players for all shops you own.
     browse: <yellow>Blader door winkels die op deze server aanwezig zijn.
     tag: <yellow>Tags van een winkel toevoegen, verwijderen of opvragen
     suggestprice: <yellow>Stel een adviesprijs voor de winkel voor, op basis van andere winkels
