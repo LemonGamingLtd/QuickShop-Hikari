@@ -21,7 +21,6 @@ package com.ghostchu.quickshop.util;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.event.Phase;
-import com.ghostchu.quickshop.api.event.settings.type.ShopOwnerEvent;
 import com.ghostchu.quickshop.api.event.settings.type.ShopPriceEvent;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
 import com.ghostchu.quickshop.api.obj.QUser;
@@ -55,7 +54,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.ghostchu.quickshop.QuickShop.taskCache;
 
 /**
  * ShopUtil
@@ -83,78 +81,6 @@ public class ShopUtil {
     }
 
     return true;
-  }
-
-  public static void transferRequest(@NotNull final UUID sender, @NotNull final UUID uuid, @NotNull final String name, @NotNull final Shop shop) {
-
-    transferRequest(sender, uuid, name, List.of(shop));
-  }
-
-  public static void transferRequest(@NotNull final UUID sender, @NotNull final UUID uuid, @NotNull final String name, @NotNull final List<Shop> shopsToTransfer) {
-
-    final Player player = Bukkit.getPlayer(sender);
-    final Player receiver = Bukkit.getPlayer(uuid);
-    if(receiver == null || player == null) {
-      QuickShop.getInstance().text().of(sender, "player-offline", name).send();
-      return;
-    }
-    if(sender.equals(uuid)) {
-      QuickShop.getInstance().text().of(sender, "transfer-no-self", name).send();
-      return;
-    }
-    final QUser senderQUser = QUserImpl.createFullFilled(player);
-    final QUser receiverQUser = QUserImpl.createFullFilled(receiver);
-
-    final ShopUtil.PendingTransferTask task = new ShopUtil.PendingTransferTask(senderQUser, receiverQUser, shopsToTransfer);
-    taskCache.put(uuid, task);
-    QuickShop.getInstance().text().of(sender, "transfer-sent", name).send();
-    QuickShop.getInstance().text().of(receiver, "transfer-single-request", player.getName()).send();
-    QuickShop.getInstance().text().of(receiver, "transfer-single-ask", 60).send();
-  }
-
-  /**
-   * Initiates a transfer request for a single shop from a sender user to a receiver user.
-   *
-   * @param senderQUser   The sending user initiating the transfer. Must not be null. The user must
-   *                      have a valid unique ID.
-   * @param receiverQUser The receiving user for the transfer. Must not be null. The user must have
-   *                      a valid unique ID. Cannot be the same user as the sender.
-   * @param name The string name of the receiving player. Must not be null.
-   * @param shop The shop to be transferred as part of the request. Must not be null.
-   */
-  public static void transferRequest(@NotNull final QUser senderQUser, @NotNull final QUser receiverQUser, @NotNull final String name, @NotNull final Shop shop) {
-
-    transferRequest(senderQUser, receiverQUser, name, List.of(shop));
-  }
-
-  /**
-   * Initiates a transfer request of shops from a sender user to a receiver user.
-   *
-   * @param senderQUser     The sending user initiating the transfer. Must not be null. The user
-   *                        must have a valid unique ID.
-   * @param receiverQUser   The receiving user for the transfer. Must not be null. The user must
-   *                        have a valid unique ID. Cannot be the same user as the sender.
-   * @param name The string name of the receiving player. Must not be null.
-   * @param shopsToTransfer A list of shops to be transferred. Must not be null. The provided list
-   *                        should contain valid shop entries.
-   */
-  public static void transferRequest(@NotNull final QUser senderQUser, @NotNull final QUser receiverQUser, @NotNull final String name, @NotNull final List<Shop> shopsToTransfer) {
-
-    if(senderQUser.getUniqueId() == null || receiverQUser.getUniqueId() == null) {
-      //TODO: send error message/will this happen?
-      return;
-    }
-
-    if(senderQUser.getUniqueId().equals(receiverQUser.getUniqueId())) {
-      QuickShop.getInstance().text().of(senderQUser, "transfer-no-self", name).send();
-      return;
-    }
-
-    final ShopUtil.PendingTransferTask task = new ShopUtil.PendingTransferTask(senderQUser, receiverQUser, shopsToTransfer);
-    taskCache.put(receiverQUser.getUniqueId(), task);
-    QuickShop.getInstance().text().of(senderQUser, "transfer-sent", name).send();
-    QuickShop.getInstance().text().of(receiverQUser, "transfer-single-request", senderQUser.getDisplay()).send();
-    QuickShop.getInstance().text().of(receiverQUser, "transfer-single-ask", 60).send();
   }
 
   //check if the price will fit within DECIMAL(32,2)
@@ -552,87 +478,4 @@ public class ShopUtil {
     return amount;
   }
 
-  public static class PendingTransferTask {
-
-    private final QUser from;
-    private final QUser to;
-    private final List<Shop> shops;
-
-    public PendingTransferTask(final QUser from, final QUser to, final List<Shop> shops) {
-
-      this.from = from;
-      this.to = to;
-      this.shops = shops;
-    }
-
-    public void cancel(final boolean sendMessage) {
-
-      if(sendMessage) {
-        QuickShop.getInstance().text().of(from, "transfer-rejected-fromside", to).send();
-        QuickShop.getInstance().text().of(to, "transfer-rejected-toside", from).send();
-      }
-    }
-
-    public void commit(final boolean sendMessage) {
-
-      for(final Shop shop : shops) {
-
-        ShopOwnerEvent event = new ShopOwnerEvent(Phase.PRE, shop, shop.getOwner(), to);
-        event.callEvent();
-
-        event = event.clone(Phase.MAIN);
-        if(event.callCancellableEvent()) {
-          continue;
-        }
-        shop.setOwner(event.updated());
-
-        event = event.clone(Phase.POST);
-        event.callEvent();
-
-
-        if(sendMessage) {
-          QuickShop.getInstance().text().of(from, "transfer-accepted-fromside", event.updated()).send();
-          QuickShop.getInstance().text().of(event.updated(), "transfer-accepted-toside", from).send();
-        }
-      }
-    }
-
-    public QUser getFrom() {
-
-      return this.from;
-    }
-
-    public QUser getTo() {
-
-      return this.to;
-    }
-
-    public List<Shop> getShops() {
-
-      return this.shops;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-
-      if(o == this) return true;
-      if(!(o instanceof ShopUtil.PendingTransferTask)) return false;
-      final ShopUtil.PendingTransferTask other = (ShopUtil.PendingTransferTask)o;
-      return Objects.equals(this.getFrom(), other.getFrom())
-             && Objects.equals(this.getTo(), other.getTo())
-             && Objects.equals(this.getShops(), other.getShops());
-    }
-
-    @Override
-    public int hashCode() {
-
-      return Objects.hash(this.getFrom(), this.getTo(), this.getShops());
-    }
-
-    @Override
-    public String toString() {
-
-      return "ShopUtil.PendingTransferTask(from=" + this.getFrom() + ", to=" + this.getTo() + ", shops=" + this.getShops() + ")";
-  }
-  }
 }

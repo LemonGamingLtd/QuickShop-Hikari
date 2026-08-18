@@ -52,8 +52,6 @@ import com.ghostchu.quickshop.command.subcommand.SubCommand_Tag;
 import com.ghostchu.quickshop.command.subcommand.SubCommand_TaxAccount;
 import com.ghostchu.quickshop.command.subcommand.SubCommand_ToggleDisplay;
 import com.ghostchu.quickshop.command.subcommand.SubCommand_ToggleDisplayAll;
-import com.ghostchu.quickshop.command.subcommand.SubCommand_TransferAll;
-import com.ghostchu.quickshop.command.subcommand.SubCommand_TransferOwnership;
 import com.ghostchu.quickshop.command.subcommand.SubCommand_Unlimited;
 import com.ghostchu.quickshop.command.subcommand.SubCommand_Watch;
 import com.ghostchu.quickshop.command.subcommand.silent.SubCommand_SilentBuy;
@@ -169,18 +167,6 @@ public class SimpleCommandManager implements CommandManager, TabCompleter, Comma
                     .hidden(true)
                     .permission("quickshop.unlimited")
                     .executor(new SubCommand_SilentUnlimited(plugin))
-                    .build());
-    registerCmd(
-            CommandContainer.builder()
-                    .prefix("transferall")
-                    .permission("quickshop.transferall")
-                    .executor(new SubCommand_TransferAll(plugin))
-                    .build());
-    registerCmd(
-            CommandContainer.builder()
-                    .prefix("transferownership")
-                    .permission("quickshop.transferownership")
-                    .executor(new SubCommand_TransferOwnership(plugin))
                     .build());
     registerCmd(
             CommandContainer.builder()
