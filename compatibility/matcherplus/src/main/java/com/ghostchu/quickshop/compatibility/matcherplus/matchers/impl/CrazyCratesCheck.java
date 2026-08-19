@@ -1,10 +1,12 @@
 package com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl;
 
-import com.badbones69.crazycrates.paper.api.enums.other.keys.ItemKeys;
+import com.badbones69.crazycrates.CrazyCrates;
+import com.badbones69.crazycrates.api.objects.Crate;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.ItemCheck;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class CrazyCratesCheck implements ItemCheck {
 
@@ -19,8 +21,7 @@ public class CrazyCratesCheck implements ItemCheck {
    */
   @Override
   public boolean applies(final @Nullable ItemStack stack) {
-
-    return stack != null && stack.getPersistentDataContainer().has(ItemKeys.crate_key.getNamespacedKey(), PersistentDataType.STRING);
+    return CrazyCrates.getPlugin().getStarter().getCrazyManager().isKey(stack);
   }
 
   /**
@@ -33,10 +34,9 @@ public class CrazyCratesCheck implements ItemCheck {
    */
   @Override
   public boolean matches(final @Nullable ItemStack stack, final @Nullable ItemStack compare) {
+    final Crate originalCrate = CrazyCrates.getPlugin().getStarter().getCrazyManager().getCrateFromKey(stack);
+    final Crate compareCrate = CrazyCrates.getPlugin().getStarter().getCrazyManager().getCrateFromKey(compare);
 
-    final String originalKey = (stack != null)? stack.getPersistentDataContainer().getOrDefault(ItemKeys.crate_key.getNamespacedKey(), PersistentDataType.STRING, defaultValue) : defaultValue;
-    final String compareKey = (compare != null)? compare.getPersistentDataContainer().getOrDefault(ItemKeys.crate_key.getNamespacedKey(), PersistentDataType.STRING, defaultValue) : defaultValue;
-
-    return originalKey.equals(compareKey);
+    return Objects.equals(originalCrate, compareCrate);
   }
 }
