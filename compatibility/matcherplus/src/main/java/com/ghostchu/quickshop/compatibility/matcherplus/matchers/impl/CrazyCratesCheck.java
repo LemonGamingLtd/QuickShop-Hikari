@@ -10,8 +10,6 @@ import java.util.Objects;
 
 public class CrazyCratesCheck implements ItemCheck {
 
-  private final String defaultValue = "no-key";
-
   /**
    * Check if this check applies to the specified ItemStack
    *
