@@ -163,7 +163,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.awt.print.Paper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -520,8 +519,10 @@ public class QuickShop implements QuickShopAPI, Reloadable {
     } else {
       logWatcher = null;
     }
-    // Schedule this event can be run in next tick.
-    //Util.mainThreadRun(() -> new QSConfigurationReloadEvent(javaPlugin).callEvent());
+    // FoliaLib is initialized during onEnable, after the initial configuration load.
+    if(folia != null) {
+      Util.mainThreadRun(() -> new QSConfigurationReloadEvent(javaPlugin).callEvent());
+    }
   }
 
   /**
@@ -861,7 +862,7 @@ public class QuickShop implements QuickShopAPI, Reloadable {
       logger.info("Start to caching usernames (async)...");
       ((FastPlayerFinder)getPlayerFinder()).bakeCaches();
     });
-    /* Initalize the tools */
+    /* Initialize the tools */
     // Create the shop manager.
     permissionManager = new PermissionManager(this);
     shopPermissionManager = new SimpleShopPermissionManager(this);
