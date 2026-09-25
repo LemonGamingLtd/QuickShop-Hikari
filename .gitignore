@@ -111,3 +111,6 @@ target/
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
 /build-logic
+
+# Generated Maven Shade dependency metadata
+dependency-reduced-pom.xml

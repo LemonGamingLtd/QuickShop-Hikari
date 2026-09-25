@@ -2,6 +2,7 @@ package com.ghostchu.quickshop.listener;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.util.Util;
 import com.ghostchu.quickshop.api.shop.ShopChunk;
 import com.ghostchu.simplereloadlib.ReloadResult;
 import com.ghostchu.simplereloadlib.ReloadStatus;
@@ -34,7 +35,21 @@ public class WorldListener extends AbstractQSListener {
      */
     final World world = e.getWorld();
 
-    plugin.getShopLoader().loadShops(world.getName());
+    restoreWorldReferences(world);
+    // Database fetching and waiting for loader workers must not block the global tick thread.
+    Util.asyncThreadRun(() -> {
+      if(!plugin.getJavaPlugin().isEnabled() || org.bukkit.Bukkit.getWorld(world.getUID()) != world) {
+        return;
+      }
+      try {
+        plugin.getShopLoader().loadShops(world.getName());
+      } catch(final Exception exception) {
+        plugin.logger().error("Failed to load shops for world {}", world.getName(), exception);
+      }
+    });
+  }
+
+  private void restoreWorldReferences(final World world) {
     // New world data
     final Map<ShopChunk, Map<Location, Shop>> inWorld = new ConcurrentHashMap<>(1);
     // Old world data

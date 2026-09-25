@@ -533,8 +533,10 @@ public class SimpleDatabaseHelperV2 implements DatabaseHelper {
                        + " INNER JOIN " + DataTables.SHOP_MAP.getName()
                        + " ON " + DataTables.SHOP_MAP.getName() + ".shop = " + DataTables.SHOPS.getName() + ".id"
                        + " LEFT JOIN " + DataTables.EXTERNAL_CACHE.getName()
-                       + " ON " + DataTables.EXTERNAL_CACHE.getName() + ".shop = " + DataTables.SHOPS.getName() + ".id";
-    try(final SQLQuery query = manager.createQuery().withPreparedSQL(SQL).execute()) {
+                       + " ON " + DataTables.EXTERNAL_CACHE.getName() + ".shop = " + DataTables.SHOPS.getName() + ".id"
+                       + (worldFilter == null ? "" : " WHERE " + DataTables.SHOP_MAP.getName() + ".world = ?");
+    try(final SQLQuery query = manager.createQuery().withPreparedSQL(SQL)
+            .setParams(worldFilter == null ? java.util.List.of() : java.util.List.of(worldFilter)).execute()) {
       final ResultSet rs = query.getResultSet();
       while(rs.next()) {
         final String world = rs.getString("world");
