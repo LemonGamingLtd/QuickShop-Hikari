@@ -3,8 +3,6 @@ plugins {
 }
 
 allprojects {
-    version = "6.3.0.1"
-
     plugins.withId("java") {
         configurations.all {
             resolutionStrategy {
@@ -17,4 +15,27 @@ allprojects {
 tasks.register("printVersion") {
     val printedVersion = project.version.toString()
     doLast { println(printedVersion) }
+}
+
+tasks.register<Copy>("collectReleaseArtifacts") {
+    dependsOn(
+        subprojects.map { subproject ->
+            subproject.tasks.matching { it.name == "build" }
+        }
+    )
+
+    into(layout.buildDirectory.dir("release"))
+
+    subprojects.forEach { subproject ->
+        from(subproject.layout.buildDirectory.dir("libs")) {
+            include("QuickShop-Hikari-*.jar")
+            include("Addon-*.jar")
+            include("Compat-*.jar")
+
+            exclude("*-sources.jar")
+            exclude("*-javadoc.jar")
+        }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.FAIL
 }

@@ -11,6 +11,7 @@ import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.DWandsChec
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.ExcellentCratesCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.NexoCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.PyroFishingCheck;
+import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SafariNetCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SeasonalItemsCheck;
 import com.ghostchu.quickshop.compatibility.matcherplus.matchers.impl.SilkSpawnerCheck;
 import org.bukkit.Bukkit;
@@ -52,6 +53,10 @@ public final class Main extends CompatibilityModule implements Listener {
 
     if(Bukkit.getPluginManager().isPluginEnabled("Nexo")) {
       checks.put("nexo", new NexoCheck());
+    }
+
+    if(Bukkit.getPluginManager().isPluginEnabled("SafariNet")) {
+      checks.put("safarinet", new SafariNetCheck());
     }
 
     if(Bukkit.getPluginManager().isPluginEnabled("DWands")) {
