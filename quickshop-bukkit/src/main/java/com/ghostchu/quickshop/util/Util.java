@@ -25,7 +25,6 @@ import com.ghostchu.quickshop.shop.SimpleInfo;
 import com.ghostchu.quickshop.shop.display.AbstractDisplayItem;
 import com.ghostchu.quickshop.util.logger.Log;
 import dev.dejvokep.boostedyaml.route.Route;
-import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -515,7 +514,7 @@ public class Util {
    */
   public static boolean hasBlockedPdcKey(@NotNull final Block block) {
 
-    final BlockState bs = PaperLib.getBlockState(block, false).getState();
+    final BlockState bs = block.getState(false);
     if(!(bs instanceof org.bukkit.block.TileState tileState)) {
       return false;
     }
