@@ -100,7 +100,12 @@ public abstract class AbstractShopManager implements ShopManager {
     // That chunk data hasn't been created yet - Create it!
     // Put it in the world
     // Put the shop in its location in the chunk list.
-    inChunk.put(shop.bukkitLocation(), shop);
+    final Shop previous = inChunk.put(shop.bukkitLocation(), shop);
+    // World reloads register a fresh copy of shops still in the table, drop the replaced copy
+    // so it doesn't linger in allShops and inflate the owner's shop count (shop limit).
+    if(previous != null && previous != shop) {
+      allShops.remove(previous.getRuntimeRandomUniqueId());
+    }
     shopCache.invalidate(null, shop.bukkitLocation());
     allShops.put(shop.getRuntimeRandomUniqueId(), shop);
   }
