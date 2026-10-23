@@ -1740,18 +1740,18 @@ public class Util {
 
   /**
    * Checks whether someone else's shop is within reach of a hopper being placed by a player.
+   * Checks the two blocks above, which also covers a hopper minecart riding on a rail at b,
+   * flat or sloped.
    *
-   * @param b The block being placed.
+   * @param b The hopper, rail or hopper minecart block being placed.
    * @param p The player performing the action.
    *
    * @return true if a nearby shop was found, false otherwise.
    */
   public static boolean isOtherShopWithinHopperReach(@NotNull final Block b, @NotNull final Player p) {
 
-    final Block bshop = Util.getAttached(b);
-    if(bshop == null) {
-      return false;
-    }
+    // Hoppers pull from the block above whichever way they face, so not Util.getAttached(b)
+    final Block bshop = b.getRelative(BlockFace.UP);
     Shop shop = plugin.getShopManager().getShopIncludeAttached(bshop.getLocation());
     if(shop == null) {
       shop = plugin.getShopManager().getShopIncludeAttached(bshop.getLocation().clone().add(0, 1, 0));

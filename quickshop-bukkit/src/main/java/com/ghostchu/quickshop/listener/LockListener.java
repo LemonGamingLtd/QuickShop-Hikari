@@ -8,13 +8,16 @@ import com.ghostchu.simplereloadlib.ReloadResult;
 import com.ghostchu.simplereloadlib.ReloadStatus;
 import com.google.common.cache.CacheBuilder;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityPlaceEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -116,21 +119,57 @@ public class LockListener extends AbstractProtectionListener {
   }*/
 
   /*
-   * Handles hopper placement
+   * Handles hopper placement. This has to happen at placement time, since Paper never fires
+   * InventoryMoveItemEvent when hopper.disable-move-event is on.
    */
   @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
   public void onHopperPlace(final BlockPlaceEvent e) {
 
     final Block b = e.getBlock();
 
-    if(b.getType() != Material.HOPPER) {
+    // Rails too, since a hopper minecart riding on one pulls from the shop above it
+    if(b.getType() != Material.HOPPER && !Tag.RAILS.isTagged(b.getType())) {
+      return;
+    }
+
+    if(isHopperDenied(b, e.getPlayer())) {
+      e.setCancelled(true);
+    }
+  }
+
+  /*
+   * Handles hopper minecart placement
+   */
+  @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+  public void onHopperMinecartPlace(final EntityPlaceEvent e) {
+
+    if(!(e.getEntity() instanceof HopperMinecart)) {
       return;
     }
 
     final Player p = e.getPlayer();
+    if(p == null) {
+      return;
+    }
+
+    if(isHopperDenied(e.getEntity().getLocation().getBlock(), p)) {
+      e.setCancelled(true);
+    }
+  }
+
+  /**
+   * Checks whether the player may place a hopper at the given block, and tells them when they
+   * can't.
+   *
+   * @param b The hopper, rail or hopper minecart block being placed
+   * @param p The player placing it
+   *
+   * @return true if the placement should be cancelled
+   */
+  private boolean isHopperDenied(@NotNull final Block b, @NotNull final Player p) {
 
     if(!Util.isOtherShopWithinHopperReach(b, p)) {
-      return;
+      return false;
     }
 
     if(plugin.perm().hasPermission(p, "quickshop.other.open")) {
@@ -138,11 +177,11 @@ public class LockListener extends AbstractProtectionListener {
         plugin.text().of(p, "bypassing-lock").send();
         lockCoolDown.put(p.getUniqueId(), EMPTY_OBJECT);
       }
-      return;
+      return false;
     }
 
     plugin.text().of(p, "that-is-locked").send();
-    e.setCancelled(true);
+    return true;
   }
 
   /*
